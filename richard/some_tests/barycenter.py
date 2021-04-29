@@ -222,7 +222,7 @@ def barycenter3(save=False):
 
     k = 0
     stop = 3
-    step = 0.03
+    step = 0.3
     x = np.arange(start=0, stop=stop, step=step)
     y = np.exp(-x ** 2)
 
