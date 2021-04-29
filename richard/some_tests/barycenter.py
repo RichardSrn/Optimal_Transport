@@ -199,7 +199,7 @@ def barycenter2():
 
 
 @timer
-def barycenter3(save=True):
+def barycenter3(save=False):
     if save:
         # Get current directory
         CURR_DIR = os.path.dirname(os.path.realpath(__file__))
