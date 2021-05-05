@@ -5,22 +5,32 @@ import numpy as np
 
 
 def main():
-    # rng = np.random.RandomState(42)
-    #
-    # n = 9
-    #
-    # index = rng.choice(np.arange(200), size=(n), replace=False)
-    # index.sort()
-    #
-    # data = np.load("./artificial_data.npy")[index, :, :]
-    #
-    # plt.figure(1, figsize=(10, 10))
-    # for i in range(n):
-    #     plt.subplot(math.floor(np.sqrt(n)), math.ceil(np.sqrt(n)), i + 1)
-    #     plt.imshow(data[i, :, :])
-    #     plt.title("Element indexed {}".format(index[i]))
-    # plt.suptitle("Visualization of {}, randomly chosen, elements of the artificial_data file.".format(n))
-    # plt.show()
+    rng = np.random.RandomState(42)
+    
+    n = 8
+    
+    index = rng.choice(np.arange(200), size=(n), replace=False)
+    index.sort()
+    
+    data = np.load("./artificial_data.npy")[index, :, :]
+    
+    plt.figure(1, figsize=(10, 10))
+    for i in range(n):
+        plt.subplot(math.floor(np.sqrt(n+1)), math.ceil(np.sqrt(n+1)), i + 1)
+        plt.imshow(data[i, :, :])
+        plt.title("Element indexed {}".format(index[i]))
+        plt.axis("off")
+
+    #plot average of the data
+    data = np.load("./artificial_data.npy")
+    data = data.sum(axis=0)
+    data = data / data.sum()
+    plt.subplot(math.floor(np.sqrt(n+1)), math.ceil(np.sqrt(n+1)), n + 1)
+    plt.imshow(data)
+    plt.axis('off')
+    plt.title("Average of the data.")
+
+    plt.suptitle("Visualization of {}, randomly chosen, elements of the artificial_data file and an average.".format(n))
 
     #plot barycenters
     bary_KBCM = np.load("./bary_KBCM.npy").reshape((50,50))
@@ -41,12 +51,11 @@ def main():
     for i in range(10):
         plt.subplot(4,3,i+3)
         plt.imshow(barys_TLp[i])
-        plt.title("Barys_TLp number {}".format(i))
+        plt.title("Barys_TLp number {}".format(i+1))
         plt.axis("off")
 
     plt.suptitle("Barycenters from Barycenter_example")
     plt.show()
-
 
 
 
