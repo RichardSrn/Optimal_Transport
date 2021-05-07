@@ -1,12 +1,12 @@
 import sys
 
-from barycenter import barycenter, barycenter2, barycenter3
+from barycenter import *
 from image_manip import color_transf, face_swap
 from manhattan_example import manhattan
 from normal_distr import normal_1D, normal_2D_1, normal_2D_2
 
 
-def main(choice=32):
+def main(choice=33):
     if choice == 0:
         manhattan()
 
@@ -30,6 +30,8 @@ def main(choice=32):
         barycenter2()
     elif choice == 32:
         barycenter3()
+    elif choice == 33:
+        barycenter4()
 
 
 if __name__ == "__main__":

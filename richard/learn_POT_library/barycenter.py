@@ -265,13 +265,80 @@ def barycenter3(save=False):
         plt.show()
 
 
+@timer
+def barycenter4():
+    # Initial parameters
+    rng = np.random.RandomState(4269)
+    n_pt = 10
+    n_dist = 3
+
+    # Generate the distributions
+    dists = []
+    for i in range(n_dist):
+        mu = (rng.random(size=(1, 2)) - 0.5) * 40 + 50
+        sigma_xy = rng.random(size=(2)) * 5 + 4
+        rho = rng.randint(0, 1)
+        sigma = np.array([[sigma_xy[0] ** 2, np.prod(sigma_xy) * rho],
+                          [np.prod(sigma_xy) * rho, sigma_xy[1] ** 2]])
+        dists.append(ggauss(n_pt, m=mu, sigma=sigma, random_state=42))
+    dists = np.array(dists)
+
+    # Plot the distributions alone (no barycenter)
+    plt.figure(figsize=(10, 10))
+    plt.subplot(2,2,1)
+    # plt.axis('off')
+    plt.xlim(10, 90)
+    plt.ylim(10, 90)
+    for i in range(n_dist):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
+    plt.title(str(n_dist) + " bivariate normal distributions.")
+    plt.legend()
+
+    b = ot.bregman.convolutional_barycenter2d(dists, reg=0.0004)
+    # Plot the distributions and the barycenter
+    plt.subplot(2,2,2)
+    # plt.axis('off')
+    plt.xlim(10, 90)
+    plt.ylim(10, 90)
+    for i in range(n_dist):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
+    plt.scatter(b[:,0], b[:,1], color="black", label="barycenter - reg = 4e-4")
+    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter for m_{1,2,3}")
+    plt.legend()
+
+    b_1 = ot.bregman.convolutional_barycenter2d(dists[:2], reg=0.0004)
+    # Plot the distributions and the first barycenter
+    plt.subplot(2, 2, 3)
+    # plt.axis('off')
+    plt.xlim(10, 90)
+    plt.ylim(10, 90)
+    for i in range(n_dist-1):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
+    for i in range(2, n_dist):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
+    plt.scatter(b_1[:, 0], b_1[:, 1], color="black", label="barycenter b_1 - reg = 4e-4")
+    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter b_1 for mu_1-mu_2")
+    plt.legend()
+
+    b_2 = ot.bregman.convolutional_barycenter2d(np.array((dists[2],b_1)), weights=np.array([1/3, 2/3]), reg=0.0004)
+    # Plot the distributions and the second barycenter
+    plt.subplot(2, 2, 4)
+    # plt.axis('off')
+    plt.xlim(10, 90)
+    plt.ylim(10, 90)
+    for i in range(n_dist-1):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
+    for i in range(2,n_dist):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
+    plt.scatter(b_1[:, 0], b_1[:, 1], color="black", alpha=.3, label="barycenter b_1 - reg = 4e-4")
+    plt.scatter(b_2[:, 0], b_2[:, 1], color="black", label="barycenter b_2 - reg = 4e-4")
+    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter b_2 for b_1-mu_3 w/ weights=[2/3,2/3]")
+    plt.legend()
+    plt.show()
+
+
+
+
+
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        barycenter()
-    else:
-        size = (int(sys.argv[1]), int(sys.argv[2]))
-        if len(sys.argv) > 3:
-            reg = int(sys.argv[3])
-            barycenter(size=size, reg=reg)
-        else:
-            barycenter(size=size)
+    barycenter4()

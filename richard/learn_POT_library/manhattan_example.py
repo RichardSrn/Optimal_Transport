@@ -196,3 +196,6 @@ def manhattan():
     pl.xlabel("reg")
     pl.ylabel("Wasserstein loss")
     pl.show()
+
+if __name__ == "__main__":
+    manhattan()
