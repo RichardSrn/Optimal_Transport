@@ -8,7 +8,7 @@ import ot
 import pylab as pl
 from ot.datasets import make_1D_gauss as gauss
 from ot.datasets import make_2D_samples_gauss as ggauss
-
+import math
 
 def timer(func):
     # compute execution time
@@ -270,7 +270,7 @@ def barycenter4():
     # Initial parameters
     rng = np.random.RandomState(4269)
     n_pt = 10
-    n_dist = 3
+    n_dist = 10
 
     # Generate the distributions
     dists = []
@@ -283,57 +283,74 @@ def barycenter4():
         dists.append(ggauss(n_pt, m=mu, sigma=sigma, random_state=42))
     dists = np.array(dists)
 
-    # Plot the distributions alone (no barycenter)
-    plt.figure(figsize=(10, 10))
-    plt.subplot(2,2,1)
-    # plt.axis('off')
-    plt.xlim(10, 90)
-    plt.ylim(10, 90)
-    for i in range(n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
-    plt.title(str(n_dist) + " bivariate normal distributions.")
-    plt.legend()
-
-    b = ot.bregman.convolutional_barycenter2d(dists, reg=0.0004)
+    plt.figure(1, figsize=(7, 7))
+    baryc = ot.bregman.convolutional_barycenter2d(dists, reg=0.0004)
     # Plot the distributions and the barycenter
-    plt.subplot(2,2,2)
     # plt.axis('off')
-    plt.xlim(10, 90)
-    plt.ylim(10, 90)
+    plt.xlim(0, 100)
+    plt.ylim(0, 100)
     for i in range(n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
-    plt.scatter(b[:,0], b[:,1], color="black", label="barycenter - reg = 4e-4")
-    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter for m_{1,2,3}")
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.25)#, label="mu_{}".format(i))
+    plt.scatter(baryc[:,0], baryc[:,1], color="black", label="barycenter")
+    plt.title(str(n_dist) + " bivariate normal distributions \n Barycenter - reg = 4e-4")
     plt.legend()
+    plt.show()
 
-    b_1 = ot.bregman.convolutional_barycenter2d(dists[:2], reg=0.0004)
-    # Plot the distributions and the first barycenter
-    plt.subplot(2, 2, 3)
-    # plt.axis('off')
-    plt.xlim(10, 90)
-    plt.ylim(10, 90)
-    for i in range(n_dist-1):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
-    for i in range(2, n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
-    plt.scatter(b_1[:, 0], b_1[:, 1], color="black", label="barycenter b_1 - reg = 4e-4")
-    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter b_1 for mu_1-mu_2")
-    plt.legend()
+    # inductive barycenter
 
-    b_2 = ot.bregman.convolutional_barycenter2d(np.array((dists[2],b_1)), weights=np.array([1/3, 2/3]), reg=0.0004)
-    # Plot the distributions and the second barycenter
-    plt.subplot(2, 2, 4)
-    # plt.axis('off')
-    plt.xlim(10, 90)
-    plt.ylim(10, 90)
-    for i in range(n_dist-1):
+    two_distributions = dists[:2]
+    weights = np.array([1/2,1/2])
+    barycenters = []
+    for i in range(n_dist-1) :
+        if i > 0 :
+            two_distributions = np.array([b , dists[i+1]])
+            weights = np.array([ 1-1/(i+2) , 1/(i+2) ])
+        b = ot.bregman.convolutional_barycenter2d(two_distributions, weights=weights, reg=0.0004)
+        barycenters.append(b)
+    barycenters = np.array(barycenters)
+
+
+    # plot steps of inductive barycenter
+    n_row_plot = math.floor(np.sqrt(n_dist))
+    n_col_plot = math.ceil(np.sqrt(n_dist))
+    print(n_row_plot,n_col_plot)
+
+    plt.figure(2,figsize=(5*n_col_plot,5*n_row_plot))
+    for i in range(len(barycenters)) :
+        plt.subplot(n_row_plot,n_col_plot,i+1)
+        plt.xlim(0, 100)
+        plt.ylim(0, 100)
+        plt.axis("off")
+        if i == 0 :
+            plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.25, label="mu_0", color="blue")
+            plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_1", color="red")
+            plt.scatter(barycenters[i,:,0], barycenters[i,:,1], color="black", label="barycenter_0")
+            plt.title("Initialisation - barycenter 0")
+        else :
+            plt.scatter(barycenters[i-1, :, 0], barycenters[i-1, :, 1], color="blue", alpha=.3,
+                        label="barycenter {}".format(i - 1))
+            plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_{}".format(i+1), color="red")
+            plt.scatter(barycenters[i, :, 0], barycenters[i, :, 1], color="black", label="barycenter {}".format(i))
+            plt.title("Induction - barycenter {}".format(i))
+        plt.legend()
+    plt.suptitle("Steps of the Barycenter by induction.")
+    plt.show()
+
+    # comparison between the two methods.
+    plt.figure(3,figsize=(15,7))
+
+    plt.subplot(1,2,1)
+    plt.scatter(baryc[:,0], baryc[:,1], color="black", label="Barycenter")
+    for i in range(n_dist):
         plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
-    for i in range(2,n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5, label="mu_{}".format(i))
-    plt.scatter(b_1[:, 0], b_1[:, 1], color="black", alpha=.3, label="barycenter b_1 - reg = 4e-4")
-    plt.scatter(b_2[:, 0], b_2[:, 1], color="black", label="barycenter b_2 - reg = 4e-4")
-    plt.title(str(n_dist) + " bivariate normal distributions \n barycenter b_2 for b_1-mu_3 w/ weights=[2/3,2/3]")
-    plt.legend()
+    plt.title("Barycenter computed directly with all distributions.")
+
+    plt.subplot(1,2,2)
+    plt.scatter(barycenters[-1,:,0], barycenters[-1,:,1], color="black", label="barycenter")
+    for i in range(n_dist):
+        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
+    plt.title("Barycenter computed by induction.")
+    plt.suptitle("Comparison between the two methods.")
     plt.show()
 
 
