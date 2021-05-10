@@ -6,10 +6,37 @@ Created on Fri May  7 09:54:35 2021
 @author: bananasacks
 """
 
-
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+import warnings
+import sys
+sys.path.insert(1, '/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle')
+from debiased_ot_barycenters import sinkhorn_barycenters as sink
+
+
+#rng = np.random.RandomState(42)
+#n = 2
+    
+#index = rng.choice(np.arange(200), size=(n), replace=False)
+#index.sort()
+
+noise = np.load("./artificial_data.npy")#[index, :, :]
+no_noise = np.load("./artificial_data_no_noise.npy")#[index, :, :]
+
+#noise = noise.reshape((50,50))
+print(noise.shape)
+print(no_noise.shape)
+
+print(type(noise))
+#noiseP =  torch.Tensor(noise)
+noiseP =  torch.from_numpy(noise)
+K = torch.from_numpy(np.array([50]))
+print(type(noiseP))
+
+#sink.barycenter_debiased_2d(noiseP, noiseP)
+sink.barycenter_3d(noiseP, noiseP, debiased = True)
 
 
 #run create_artificial_data and create_artificial_data_no_noise using the already saved off amplitude.npy file
