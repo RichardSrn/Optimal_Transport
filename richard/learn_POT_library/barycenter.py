@@ -1,5 +1,5 @@
+import math
 import os
-import sys
 from time import time
 
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import ot
 import pylab as pl
 from ot.datasets import make_1D_gauss as gauss
 from ot.datasets import make_2D_samples_gauss as ggauss
-import math
+
 
 def timer(func):
     # compute execution time
@@ -283,9 +283,9 @@ def barycenter4():
         dists.append(ggauss(n_pt, m=mu, sigma=sigma, random_state=42))
     dists = np.array(dists)
 
-    plt.figure(1, figsize=(7, 7))
     baryc = ot.bregman.convolutional_barycenter2d(dists, reg=0.0004)
     # Plot the distributions and the barycenter
+    plt.figure(1, figsize=(7, 7))
     # plt.axis('off')
     plt.xlim(0, 100)
     plt.ylim(0, 100)
@@ -311,9 +311,8 @@ def barycenter4():
 
 
     # plot steps of inductive barycenter
-    n_row_plot = math.floor(np.sqrt(n_dist))
-    n_col_plot = math.ceil(np.sqrt(n_dist))
-    print(n_row_plot,n_col_plot)
+    n_row_plot = math.floor(np.sqrt(n_dist-1))
+    n_col_plot = math.ceil(np.sqrt(n_dist-1))
 
     plt.figure(2,figsize=(5*n_col_plot,5*n_row_plot))
     for i in range(len(barycenters)) :
@@ -352,6 +351,9 @@ def barycenter4():
     plt.title("Barycenter computed by induction.")
     plt.suptitle("Comparison between the two methods.")
     plt.show()
+
+    difference = baryc - barycenters[-1]
+    print(difference)
 
 
 

@@ -66,9 +66,7 @@ def manhattan():
 
     # Solving the OT problem with ot.emd
 
-    start = time.time()
     ot_emd = ot.emd(bakery_prod, cafe_prod, C)
-    time_emd = time.time() - start
 
     # Transportation plan vizualization
 
