@@ -1,0 +1,3 @@
+[submodule "pascalle/debiased-ot-barycenters"]
+	path = pascalle/debiased-ot-barycenters
+	url = https://github.com/hichamjanati/debiased-ot-barycenters.git
