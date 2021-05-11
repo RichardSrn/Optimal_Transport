@@ -226,21 +226,22 @@ def barycenter3(save=False):
     x = np.arange(start=0, stop=stop, step=step)
     y = np.exp(-x ** 2)
 
+    plt.figure(1, figsize=(5,5))
     plt.scatter(x,y,color="blue",alpha=.7, label="f(x)=exp(-x^2)")
     plt.xlabel("x in 0 to 3 step 0.03")
     plt.ylabel("Regularization input")
     plt.legend()
     plt.title("Input for barycenter's regularization parameter.")
-    plt.show()
+    # plt.show()
 
     # Plot the distributions alone (no barycenter)
-    plt.figure(figsize=(5, 5))
+    plt.figure(2, figsize=(5, 5))
     plt.xlim(10, 90)
     plt.ylim(10, 90)
     for i in range(n_dist):
         plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.5)
     plt.title(str(n_dist)+" bivariate normal distributions.")
-    plt.show()
+    # plt.show()
 
     for reg in y:
         k += 1
@@ -250,7 +251,7 @@ def barycenter3(save=False):
 
         # Plotting
         ## Plot the distributions
-        plt.figure(figsize=(5, 5))
+        plt.figure(3, figsize=(5, 5))
         # plt.xlim(10, 90)
         # plt.ylim(10, 90)
         for i in range(n_dist):
@@ -265,14 +266,7 @@ def barycenter3(save=False):
         plt.show()
 
 
-@timer
-def barycenter4():
-    # Initial parameters
-    rng = np.random.RandomState(4269)
-    n_pt = 10
-    n_dist = 10
-
-    # Generate the distributions
+def generate_normal(n_dist, n_pt,rng):
     dists = []
     for i in range(n_dist):
         mu = (rng.random(size=(1, 2)) - 0.5) * 40 + 50
@@ -282,6 +276,39 @@ def barycenter4():
                           [np.prod(sigma_xy) * rho, sigma_xy[1] ** 2]])
         dists.append(ggauss(n_pt, m=mu, sigma=sigma, random_state=42))
     dists = np.array(dists)
+    return dists
+
+
+def generate_unif(n_dist,n_pt,rng):
+    dists = []
+    for i in range(n_dist):
+        minimum_x, minimum_y = rng.randint(0,49,size=(2))
+        maximum_x, maximum_y = rng.randint(51,100,size=(2))
+        X = rng.uniform(minimum_x, maximum_x, size=(n_pt))
+        Y = rng.uniform(minimum_y, maximum_y, size=(n_pt))
+        points = np.array([[i,j] for i,j in zip(X,Y)])
+        dists.append(points)
+    dists = np.array(dists)
+    return dists
+
+
+@timer
+def barycenter4(dist_type = "uniform", n_dist = 10, n_pt = 10, seed = 42069):
+    # Initial parameters
+    rng = np.random.RandomState(seed)
+
+    # Generate the distributions
+    
+    if dist_type == "normal" :
+        dists = generate_normal(n_dist, n_pt, rng)
+    if dist_type == "uniform" :
+        dists = generate_unif(n_dist,n_pt,rng)
+    if dist_type == "mix" :
+        dists_norm = generate_normal(n_dist,n_pt,rng)
+        dists_unif = generate_unif(n_dist,n_pt,rng)
+        dists = np.concatenate((dists_norm, dists_unif), axis = 0)
+        rng.shuffle(dists)
+
 
     baryc = ot.bregman.convolutional_barycenter2d(dists, reg=0.0004)
     # Plot the distributions and the barycenter
@@ -292,9 +319,9 @@ def barycenter4():
     for i in range(n_dist):
         plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.25)#, label="mu_{}".format(i))
     plt.scatter(baryc[:,0], baryc[:,1], color="black", label="barycenter")
-    plt.title(str(n_dist) + " bivariate normal distributions \n Barycenter - reg = 4e-4")
+    plt.title(str(n_dist) + f" bivariate {dist_type} distributions \n Barycenter - reg = 4e-4")
     plt.legend()
-    plt.show()
+    # plt.show()
 
     # inductive barycenter
 
@@ -333,7 +360,7 @@ def barycenter4():
             plt.title("Induction - barycenter {}".format(i))
         plt.legend()
     plt.suptitle("Steps of the Barycenter by induction.")
-    plt.show()
+    # plt.show()
 
     # comparison between the two methods.
     plt.figure(3,figsize=(15,7))
@@ -360,4 +387,4 @@ def barycenter4():
 
 
 if __name__ == "__main__":
-    barycenter3()
+    barycenter4()

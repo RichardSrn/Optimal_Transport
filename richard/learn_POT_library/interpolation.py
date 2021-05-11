@@ -5,6 +5,10 @@ import numpy as np
 import ot
 import pylab as pl
 
+def barycenter_2dist(mu_s,mu_t,emd):
+    pass
+
+
 
 def interpolation(mu_s=None, mu_t=None):
     # set parameters
@@ -70,33 +74,26 @@ def interpolation(mu_s=None, mu_t=None):
             if dist2[i] > 0:
                 plt.scatter(grid[i, 0], grid[i, 1], color="red", alpha=dist2[i] * dist2.max(), label="mu_t")
 
-    dists = np.array([mu_s,mu_t])
-    print(dists.shape)
-    baryc = ot.bregman.convolutional_barycenter2d(dists, reg=0.0001)
-    print('\nbaryc :\n', baryc)
+    baryc = barycenter_2dist(mu_s,mu_t,ot_emd)
 
-    plot3 = False
+    plot3 = True
     if plot3:
-        plt.figure(3, figsize=(5, 5))
+        plt.figure(3, figsize=(10, 5))
         plt.clf()
-        plt.xlim(-1, x_size)
-        plt.ylim(-1, y_size)
-        for i in range(dist1.shape[0]):
-            if dist1[i] > 0:
-                plt.scatter(grid[i, 0], grid[i, 1], color="blue", alpha=dist1[i] * dist1.max(), label="mu_s")
-            if dist2[i] > 0:
-                plt.scatter(grid[i, 0], grid[i, 1], color="red", alpha=dist2[i] * dist2.max(), label="mu_t")
-            if baryc:
-                pass
+        plt.subplot(1,2,1)
+        plt.imshow(mu_s)
+        plt.title("mu_s")
+        
+        plt.subplot(1,2,2)
+        plt.imshow(mu_t)
+        plt.title("mu_t")
 
     plt.show()
 
 
 if __name__ == '__main__':
-    mu_s = np.array([[0, .5, .5],
-                     [.5, 0, .5],
-                     [0, 0, 0]])
-    mu_t = np.array([[.5, 0, 0],
-                     [0, .5, 0],
-                     [.5, 0, .5]])
+    mu_s = np.array([[0, .5],
+                     [.5, 0]])
+    mu_t = np.array([[.5, 0],
+                     [0, .5]])
     interpolation(mu_s, mu_t)
