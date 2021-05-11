@@ -42,6 +42,6 @@ P =  torch.from_numpy(noise)
 K = torch.from_numpy(K)
 
 
-#q = sink.barycenter_debiased_2d(P, K)
+sink.barycenter_debiased_2d(P, K)
 
 #print(q)
