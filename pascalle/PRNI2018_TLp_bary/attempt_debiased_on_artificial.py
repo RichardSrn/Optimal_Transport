@@ -12,7 +12,7 @@ import torch
 import ot
 import warnings
 import sys
-sys.path.insert(1, '/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle/debiased_ot_barycenters')
+sys.path.insert(1, '/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle/debiased_ot_barycenters/')
 import sinkhorn_barycenters as sink
 
 
@@ -30,7 +30,7 @@ epsilon = 1e-1
 C = ot.dist(noise[0], noise[1])
 print(C)
 #normalize
-C /= C.max()
+#C /= C.max()
 expC = lambda i: math.exp(-i/epsilon)
 expC = np.vectorize(expC)
 
@@ -42,4 +42,6 @@ P =  torch.from_numpy(noise)
 K = torch.from_numpy(K)
 
 
-#q = sink.barycenter_debiased_2d(P, K)
+q = sink.barycenter_debiased_2d(P, K)
+
+print(q)
