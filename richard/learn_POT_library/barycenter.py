@@ -360,4 +360,4 @@ def barycenter4():
 
 
 if __name__ == "__main__":
-    barycenter4()
+    barycenter3()
