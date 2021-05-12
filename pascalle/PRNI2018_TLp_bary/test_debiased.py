@@ -14,8 +14,11 @@ import torch
 import ot
 import warnings
 import sys
-sys.path.insert(1, '/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle/')
-from debiased_ot_barycenters import sinkhorn_barycenters as sink
+import os
+
+#CURR_DIR = os.path.dirname(os.path.realpath(__file__))
+
+import sinkhorn_barycenters as sink
 
 
 #rng = np.random.RandomState(42)
