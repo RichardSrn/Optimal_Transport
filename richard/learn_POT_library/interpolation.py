@@ -4,17 +4,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ot
 import pylab as pl
+from barycenter import generate_normal
 
 def barycenter_2dist(mu_s,mu_t,emd):
     pass
 
 
 
-def interpolation(mu_s=None, mu_t=None):
+def interpolation(mu_s = None, mu_t = None):
     # set parameters
     rng = np.random.RandomState(4269)
 
-    if type(mu_s) == None:
+    if mu_s is None :
         # Generate the distributions
         indexes = rng.randint(0, 199, size=2)
         mu_s, mu_t = np.load("../PRNI2018_TLp_bary/artificial_data_nn.npy")[indexes]
@@ -96,4 +97,5 @@ if __name__ == '__main__':
                      [.5, 0]])
     mu_t = np.array([[.5, 0],
                      [0, .5]])
-    interpolation(mu_s, mu_t)
+    # interpolation(mu_s, mu_t)
+    interpolation()

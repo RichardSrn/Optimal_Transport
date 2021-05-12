@@ -292,8 +292,8 @@ def generate_unif(n_dist,n_pt,rng):
     return dists
 
 
-@timer
-def barycenter4(dist_type = "uniform", n_dist = 10, n_pt = 10, seed = 42069):
+# @timer
+def barycenter4(dist_type = "mix", n_dist = 10, n_pt = 10, seed = 42069, plot=True):
     # Initial parameters
     rng = np.random.RandomState(seed)
 
@@ -304,8 +304,8 @@ def barycenter4(dist_type = "uniform", n_dist = 10, n_pt = 10, seed = 42069):
     if dist_type == "uniform" :
         dists = generate_unif(n_dist,n_pt,rng)
     if dist_type == "mix" :
-        dists_norm = generate_normal(n_dist,n_pt,rng)
-        dists_unif = generate_unif(n_dist,n_pt,rng)
+        dists_norm = generate_normal(n_dist//2,n_pt,rng)
+        dists_unif = generate_unif(n_dist//2,n_pt,rng)
         dists = np.concatenate((dists_norm, dists_unif), axis = 0)
         rng.shuffle(dists)
 
@@ -338,49 +338,109 @@ def barycenter4(dist_type = "uniform", n_dist = 10, n_pt = 10, seed = 42069):
 
 
     # plot steps of inductive barycenter
-    n_row_plot = math.floor(np.sqrt(n_dist-1))
-    n_col_plot = math.ceil(np.sqrt(n_dist-1))
+    if plot :
+        n_row_plot = math.floor(np.sqrt(n_dist-1))
+        n_col_plot = math.ceil(np.sqrt(n_dist-1))
 
-    plt.figure(2,figsize=(5*n_col_plot,5*n_row_plot))
-    for i in range(len(barycenters)) :
-        plt.subplot(n_row_plot,n_col_plot,i+1)
-        plt.xlim(0, 100)
-        plt.ylim(0, 100)
-        plt.axis("off")
-        if i == 0 :
-            plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.25, label="mu_0", color="blue")
-            plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_1", color="red")
-            plt.scatter(barycenters[i,:,0], barycenters[i,:,1], color="black", label="barycenter_0")
-            plt.title("Initialisation - barycenter 0")
-        else :
-            plt.scatter(barycenters[i-1, :, 0], barycenters[i-1, :, 1], color="blue", alpha=.3,
-                        label="barycenter {}".format(i - 1))
-            plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_{}".format(i+1), color="red")
-            plt.scatter(barycenters[i, :, 0], barycenters[i, :, 1], color="black", label="barycenter {}".format(i))
-            plt.title("Induction - barycenter {}".format(i))
-        plt.legend()
-    plt.suptitle("Steps of the Barycenter by induction.")
-    # plt.show()
+        plt.figure(2,figsize=(5*n_col_plot,5*n_row_plot))
+        for i in range(len(barycenters)) :
+            plt.subplot(n_row_plot,n_col_plot,i+1)
+            plt.xlim(0, 100)
+            plt.ylim(0, 100)
+            plt.axis("off")
+            if i == 0 :
+                plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.25, label="mu_0", color="blue")
+                plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_1", color="red")
+                plt.scatter(barycenters[i,:,0], barycenters[i,:,1], color="black", label="barycenter_0")
+                plt.title("Initialization - barycenter 0")
+            else :
+                plt.scatter(barycenters[i-1, :, 0], barycenters[i-1, :, 1], color="blue", alpha=.3,
+                            label="barycenter {}".format(i - 1))
+                plt.scatter(dists[i+1, :, 0], dists[i+1, :, 1], alpha=.25, label="mu_{}".format(i+1), color="red")
+                plt.scatter(barycenters[i, :, 0], barycenters[i, :, 1], color="black", label="barycenter {}".format(i))
+                plt.title("Induction - barycenter {}".format(i))
+            plt.legend()
+        plt.suptitle(f"Steps of the Barycenter by induction. {dist_type} distributions.")
+        # plt.show()
 
-    # comparison between the two methods.
-    plt.figure(3,figsize=(15,7))
+        # comparison between the two methods.
+        plt.figure(3,figsize=(15,7))
 
-    plt.subplot(1,2,1)
-    plt.scatter(baryc[:,0], baryc[:,1], color="black", label="Barycenter")
-    for i in range(n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
-    plt.title("Barycenter computed directly with all distributions.")
+        plt.subplot(1,2,1)
+        plt.scatter(baryc[:,0], baryc[:,1], color="black", label="Barycenter")
+        for i in range(n_dist):
+            plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
+        plt.title("Barycenter computed directly with all distributions.")
 
-    plt.subplot(1,2,2)
-    plt.scatter(barycenters[-1,:,0], barycenters[-1,:,1], color="black", label="barycenter")
-    for i in range(n_dist):
-        plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
-    plt.title("Barycenter computed by induction.")
-    plt.suptitle("Comparison between the two methods.")
-    plt.show()
+        plt.subplot(1,2,2)
+        plt.scatter(barycenters[-1,:,0], barycenters[-1,:,1], color="black", label="barycenter")
+        for i in range(n_dist):
+            plt.scatter(dists[i, :, 0], dists[i, :, 1], alpha=.2, label="mu_{}".format(i))
+        plt.title("Barycenter computed by induction.")
+        plt.suptitle(f"Comparison between the two methods. {dist_type} distributions.")
+        plt.show()
 
-    difference = baryc - barycenters[-1]
-    print(difference)
+    difference = abs(baryc - barycenters[-1])
+    mean_diff = np.sum(difference)/n_pt
+    print(f"{dist_type} distributions.")
+    # print("difference between the two methods :\n",difference)
+    print("Average difference :\n",mean_diff)
+
+    return (difference,mean_diff)
+
+
+@timer
+def test_baryc4(n_tests = 100, seed = 4269) :
+    rng = np.random.RandomState(seed)
+    seeds = rng.randint(99,9999,size=(n_tests))
+    print("used seeds for the tests :\n",list(seeds))
+
+    #test with normal distributions
+    t = time()
+    print("-"*50,"\n\nComparing methods for normal distributions.\n")
+    diff_norm = 0
+    i=0
+    for s in seeds :
+        i+=1
+        if i % 10 == 0 :
+            print(i,"..",sep="", end="")
+        d = barycenter4(dist_type = "normal", n_dist = 10, n_pt = 10, seed = s, plot=False)[1]
+        diff_norm += d/n_tests
+
+    print("\n\t average difference for normal distributions, over",i,"tests :\n", round(diff_norm,7))
+    print("Elapsed time :",round(time()-t,3),'s.')
+
+    #test with uniform distributions
+    t = time()
+    print("-"*50,"\n\nComparing methods for uniform distributions.\n")
+    diff_unif = 0
+    i=0
+    for s in seeds[:20] :
+        i+=1
+        if i % 10 == 0 :
+            print(i,"..",sep="", end="")
+        d = barycenter4(dist_type = "uniform", n_dist = 10, n_pt = 10, seed = s, plot=False)[1]
+        diff_unif += d/n_tests
+
+    print("\n\t average difference for uniform distributions, over",i,"tests :\n", round(diff_unif,7))
+    print("Elapsed time :",round(time()-t,3),'s.')
+
+    #test with mixed distributions
+    t = time()
+    print("-"*50,"\n\nComparing methods for mixed distributions.\n")
+    diff_mixed = 0
+    i=0
+    for s in seeds[:20] :
+        i+=1
+        if i % 10 == 0 :
+            print(i,"..",sep="", end="")
+        d = barycenter4(dist_type = "mix", n_dist = 10, n_pt = 10, seed = s, plot=False)[1]
+        diff_mixed += d/n_tests
+
+    print("\n\t average difference for mixed distributions, over",i,"tests :\n", round(diff_mixed,7))
+    print("Elapsed time :",round(time()-t,3),'s.')
+
+
 
 
 
