@@ -16,6 +16,49 @@ import sys
 #from debiased_ot_barycenters import sinkhorn_barycenters as sink
 
 
+P_nonoise, K_nonoise = debiased_format(nonoise, epsilon)
+
+q_nonoise = sink.barycenter_debiased_2d(P_nonoise, K_nonoise)
+
+P_noise, K_noise = debiased_format(noise, epsilon)
+q_noise = sink.barycenter_debiased_2d(P_noise, K_noise, maxiter=10000)
+
+plt.figure(1, figsize=(10,10))
+plt.subplot(2,2,1)
+plt.imshow(noise15)
+plt.title("Noisy Image 15")
+plt.axis("off")
+
+plt.subplot(2,2,2)
+plt.imshow(no_noise15)
+plt.title("Non-Noisy Image 15")
+plt.axis('off')
+
+plt.subplot(2,2,3)
+plt.imshow(noise95)
+plt.title("Noisy Image 95")
+plt.axis("off")
+
+plt.subplot(2,2,4)
+plt.imshow(no_noise95)
+plt.title("Non-Noisy Image 95")
+plt.axis('off')
+
+plt.figure(2, figsize=(10,10))
+plt.subplot(1,2,1)
+plt.imshow(q_noise)
+plt.title("Debiased Barycenter with Noise")
+plt.axis("off")
+
+plt.subplot(1,2,2)
+plt.imshow(q_nonoise)
+plt.title("Debiased Barycenter with No Noise")
+plt.axis('off')
+
+
+
+
+
 
 noise15 = np.load("./artificial_data.npy")[15, :, :]
 no_noise15 = np.load("./artificial_data_no_noise.npy")[15, :, :]
