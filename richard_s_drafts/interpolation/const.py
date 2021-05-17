@@ -3,6 +3,12 @@ STORING CONSTANTS HERE.
 """
 
 import os
+from ot_emd import ot_emd
+
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
-ART_DATA = CURR_DIR+"/artificial_data.npy"
+DATA_PATH = CURR_DIR+"/artificial_data_nn.npy"
+
+TEST_ALG = ot_emd
+
+PLOT_TITLE = f"Testing {TEST_ALG}"
