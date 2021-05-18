@@ -1,5 +1,9 @@
 #! /usr/bin/env python3
 
+"""
+An example algorithm to test.
+"""
+
 import ot
 import numpy as np
 

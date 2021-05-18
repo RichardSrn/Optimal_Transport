@@ -1,5 +1,27 @@
 #! /usr/bin/env python3
 
+"""
+Use const.py to change constants.
+    - **DATA_PATH** is the path to the data to use. Must be a np.ndarray format.
+    - **TEST_ALG** is the algorithm to test. 
+            The algorithm must take as input two histograms and the cost matrix.
+            It must output a coupling matrix.
+    - **PLOT_TITLE** is the title of the final plot.
+
+
+Execute script and behavior :
+    - *python3 main.py* will run the code and save the barycenter's matrix.py
+    - *python3 main.py <paramters>* :
+        . if *show* is in parameters : **show** the plot.
+        . if *save* is in parameters : **save** the plot.
+        . anything else is used as **plot_title**.
+            . if only a title is passed as parameter, save the plot with this title.
+        . if no title specified, the algorithm to test name is used as title.
+
+    -> example : "python3 main.py test_title show save"
+                            will show and save the plot with "test_title" as title.
+"""
+
 import sys
 import numpy as np
 
@@ -9,7 +31,7 @@ from coupling_from_2_hist import coupling_from_2_hist
 from barycenter_from_coupling import barycenter_from_coupling
 from plot_baryc import plot_baryc
 
-def main(plot = False, plot_title = None):
+def main(save = False, show = False, plot_title = None):
     #define the rng
     rng = np.random.RandomState(42)
 
@@ -34,34 +56,36 @@ def main(plot = False, plot_title = None):
     #get the barycenter
     barycenter = barycenter_from_coupling(hist1, hist2, coupling)
 
-    if plot :
+    if show or save :
         if plot_title is None :
-            plot_baryc(img1, img2, barycenter, title = PLOT_TITLE)
+            plot_baryc(img1, img2, barycenter, title = PLOT_TITLE, show = show, save = save)
         else :
-            plot_baryc(img1, img2, barycenter, title = plot_title)
+            plot_baryc(img1, img2, barycenter, title = plot_title, show = show, save = save)
+
+    np.save("barycenter.npy", barycenter)
 
     return barycenter
 
 
 if __name__ == "__main__" :
-    """
-    Use const.py to change constants.
-        - **DATA_PATH** is the path to the data to use. Must be a np.ndarray format.
-        - **TEST_ALG** is the algorithm to test. 
-                The algorithm must take as input two histograms and the cost matrix.
-                It must output a coupling matrix.
-        - **PLOT_TITLE** is the title of the final plot.
-    
-    Plot the results :
-        To plot the results you must run the *main.py* as *./main.py plot* 
-            in which case the plot will take the name of the tested algorithm.
-        Otherwise you can run run *./main.py "desired_plot_title"*. 
-    """
     if len(sys.argv) == 1 :
         main()
     else :
-        if sys.argv[1] == "plot" :
-            main(plot = True)
+        show = False
+        save = True
+        parameters = sys.argv[1:]
+        if "show" in parameters :
+            idx = parameters.index("show")
+            parameters.pop(idx)
+            show = True
+            save = False
+        if "save" in parameters :
+            idx = parameters.index("save")
+            parameters.pop(idx)
+            save = True
+        plot_title = " ".join(parameters)
+        if plot_title != "" :
+            main(show = show, save = save, plot_title = plot_title)
         else :
-            main(plot =True, plot_title = sys.argv[1])
+            main(show = show, save = save)
 
