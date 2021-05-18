@@ -77,7 +77,6 @@ def barycenter_from_coupling(coupling: np.ndarray, size_x, size_y):
     Computes the barycenter of the two histograms given the coupling matrix.
     size_x, size_y are original images' shape.
     """
-
     # get all the weights of the barycenter's points.
     barycenter_weights = coupling[coupling != 0]
 

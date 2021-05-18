@@ -33,19 +33,19 @@ from hist_from_images import hist_from_images
 from plot_baryc import plot_baryc
 
 
-def main(img1 = None, img2 = None, save = False, show = False, plot_title = None):
-    #define the rng
+def main(img1=None, img2=None, save=False, show=False, plot_title=None):
+    # define the rng
     rng = np.random.RandomState(42)
 
-    if img1 is None :
-        #choose 2 images
+    if img1 is None:
+        # choose 2 images
         index = rng.choice(np.arange(199), 2, replace=False)
         img1, img2 = np.load(DATA_PATH)[index]
 
     # get image shape, assuming both images are same shape.
     size_x, size_y = img1.shape
 
-    #make it absolute value
+    # make it absolute value
     img1 = abs(img1)
     img2 = abs(img2)
 
@@ -62,36 +62,35 @@ def main(img1 = None, img2 = None, save = False, show = False, plot_title = None
     # get the barycenter
     barycenter = barycenter_from_coupling(coupling, size_x, size_y)
 
-    if show or save :
-        if plot_title is None :
-            plot_baryc(img1, img2, barycenter, title = PLOT_TITLE, show = show, save = save)
-        else :
-            plot_baryc(img1, img2, barycenter, title = plot_title, show = show, save = save)
+    if show or save:
+        if plot_title is None:
+            plot_baryc(img1, img2, barycenter, title=PLOT_TITLE, show=show, save=save)
+        else:
+            plot_baryc(img1, img2, barycenter, title=plot_title, show=show, save=save)
 
     np.save("barycenter.npy", barycenter)
 
     return barycenter
 
 
-if __name__ == "__main__" :
-    if len(sys.argv) == 1 :
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
         main()
-    else :
+    else:
         show = False
         save = True
         parameters = sys.argv[1:]
-        if "show" in parameters :
+        if "show" in parameters:
             idx = parameters.index("show")
             parameters.pop(idx)
             show = True
             save = False
-        if "save" in parameters :
+        if "save" in parameters:
             idx = parameters.index("save")
             parameters.pop(idx)
             save = True
         plot_title = " ".join(parameters)
-        if plot_title != "" :
-            main(show = show, save = save, plot_title = plot_title)
-        else :
-            main(show = show, save = save)
-
+        if plot_title != "":
+            main(show=show, save=save, plot_title=plot_title)
+        else:
+            main(show=show, save=save)
