@@ -60,11 +60,11 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
 
         # the below conditions are just here in case one of the points is on the edge of the
         # image, to avoid an "out of bound" error.
-        if floor_x < size_x:
+        if floor_x < size_x-1:
             interpolated_barycenter[floor_x + 1, floor_y] += upper_w_x * lower_w_y
-        if floor_x < size_y:
+        if floor_y < size_y-1:
             interpolated_barycenter[floor_x, floor_y + 1] += lower_w_x * upper_w_y
-        if floor_x < size_x and floor_y < size_y:
+        if floor_x < size_x-1 and floor_y < size_y-1:
             interpolated_barycenter[floor_x + 1, floor_y + 1] += upper_w_x * upper_w_y
 
         k += 1
