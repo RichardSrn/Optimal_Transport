@@ -1,0 +1,1 @@
+Optimal transport cost: 16.47736321800535

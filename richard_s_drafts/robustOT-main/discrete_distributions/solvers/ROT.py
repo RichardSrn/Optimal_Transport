@@ -8,6 +8,18 @@ from pathlib import Path
 import os
 
 
+def hist_from_images(img1: np.ndarray, img2: np.ndarray):
+    """
+    Turns a 2D image into a 1D vector -a histogram-.
+    """
+
+    # turn the 2D images images into 1D histograms
+    hist1 = img1.reshape((np.prod(img1.shape, -1)))
+    hist2 = img2.reshape((np.prod(img2.shape, -1)))
+
+    return (hist1, hist2)
+
+
 class ROTSolver(object):
     def __init__(self, dist1, dist2, marginal1=None, marginal2=None, ground_cost='l2', rho=0.1, logdir='results'):
         self.dist1 = dist1
@@ -71,3 +83,38 @@ class ROTSolver(object):
 
         robust_OT_cost = objective.value
         return robust_OT_cost
+
+def test_robust_ot():
+
+
+    rng = np.random.RandomState(42)
+
+    # choose 2 images
+    index = rng.choice(np.arange(199), 2, replace=False)
+    img1, img2 = np.load("../../../PRNI2018_TLp_bary/artificial_data_nn.npy")[index]
+    size_x, size_y = img1.shape
+
+    # make it absolute value
+    img1 = abs(img1)
+    img2 = abs(img2)
+
+    # normalize the data
+    img1 = img1 / img1.sum()
+    img2 = img2 / img2.sum()
+
+    # turn 2D images into 1D vector --histogram--
+    # hist1, hist2 = hist_from_images(img1, img2)
+
+    rot = ROTSolver(img1, img2)
+    cost = rot.solve(plot=False)
+
+
+
+
+    # get the coupling matrix
+    # coupling = coupling_from_2_hist(hist1, hist2, TEST_ALG, size_x, size_y)
+
+    # # get the barycenter
+    # barycenter = barycenter_from_coupling(coupling, size_x, size_y)
+
+test_robust_ot()  
