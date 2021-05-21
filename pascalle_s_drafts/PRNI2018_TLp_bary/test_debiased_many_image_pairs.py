@@ -127,12 +127,6 @@ def plot_compare(q_noise, q_nonoise):
 #plot_compare(q_noise, q_nonoise)   
 
 
-max_iterations = [1e4, 1e6, 1e8, 1e10] #[1e4, 1e2] 
-epsilon = [5e-3, 1e-2, 1e-1, .2, .3, .5, .7] #[1e-1, .3] 
-maxi = []
-epsi = []    
-qno = []
-qyes = []
            
 max_iterations = [1e8, 1e10, 1e11] #[1e4, 1e2] 
 epsilon = [5e-3, 1e-1, .2, .5, .7] #[1e-1, .3] 
