@@ -3,10 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cvxpy as cp
-import plotter
 from pathlib import Path
 import os
-
+import sys
+sys.path.insert(0, './../')
+import plotter
 
 def hist_from_images(img1: np.ndarray, img2: np.ndarray):
     """
@@ -106,7 +107,11 @@ def test_robust_ot():
     # hist1, hist2 = hist_from_images(img1, img2)
 
     rot = ROTSolver(img1, img2)
-    cost = rot.solve(plot=False)
+    cost = rot.solve(plot=True)
+
+
+    plt.scatter(img1[:,0], img2[:,1])
+    plt.show()
 
 
 
@@ -117,4 +122,4 @@ def test_robust_ot():
     # # get the barycenter
     # barycenter = barycenter_from_coupling(coupling, size_x, size_y)
 
-test_robust_ot()  
+test_robust_ot()
