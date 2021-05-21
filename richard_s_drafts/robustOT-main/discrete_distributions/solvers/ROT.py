@@ -60,14 +60,18 @@ class ROTSolver(object):
 
         u = np.ones((self.nsamples2, 1))
         v = np.ones((self.nsamples1, 1))
+
+        print("GETTING CONSTRAINTS...")
         constraints = [0 <= P, cp.matmul(P, u) == a_tilde, cp.matmul(P.T, v) == b_tilde, 0 <= a_tilde, 0 <= b_tilde]
         constraints.append(cp.sum([((self.marginal1[i] - a_tilde[i]) ** 2) / self.marginal1[i]
                                    for i in range(self.nsamples1)]) <= self.rho)
         constraints.append(cp.sum([((self.marginal2[i] - b_tilde[i]) ** 2) / self.marginal2[i]
                                    for i in range(self.nsamples1)]) <= self.rho)
 
+        print("CREATING OPTIMIZATION PROBLEM...")
         objective = cp.Minimize(cp.sum(cp.multiply(P, C)))
         prob = cp.Problem(objective, constraints)
+        print("SOLVING PROBLEM...")
         result = prob.solve(solver='SCS')
         coupling = P.value
 
@@ -76,6 +80,7 @@ class ROTSolver(object):
         print("Objective function: {}".format(objective.value))
 
         if plot:
+            print("PLOTTING...")
             print('Generating plots ...')
             plotter.generate_scatter_plots(self.dist1, self.dist2,
                                            '{}/orig.png'.format(self.logdir))
@@ -91,8 +96,17 @@ def test_robust_ot():
     rng = np.random.RandomState(42)
 
     # choose 2 images
+    print("IMPORT IMAGES...")
     index = rng.choice(np.arange(199), 2, replace=False)
     img1, img2 = np.load("../../../PRNI2018_TLp_bary/artificial_data_nn.npy")[index]
+
+    a,b = img1.shape
+    a //= 2
+    b //= 2
+
+    img1 = img1[:a,b:]
+    img2 = img2[a:,b:]
+
     size_x, size_y = img1.shape
 
     # make it absolute value
@@ -104,14 +118,23 @@ def test_robust_ot():
     img2 = img2 / img2.sum()
 
     # turn 2D images into 1D vector --histogram--
-    # hist1, hist2 = hist_from_images(img1, img2)
+    print("RESHAPE IMAGES INTO HISTOGRAMS...")
+    hist1, hist2 = hist_from_images(img1, img2)
 
-    rot = ROTSolver(img1, img2)
-    cost = rot.solve(plot=True)
+    hist1 = np.array([np.arange(hist1.shape[0]), hist1]).T
+    hist2 = np.array([np.arange(hist2.shape[0]), hist2]).T
+
+    # plt.plot(hist1.T[0], hist1.T[1])
+    # plt.plot(hist2.T[0], hist2.T[1])
+    # plt.show()
+
+    print("START SOLVING ROT...")
+    rot = ROTSolver(hist1, hist2)
+    cost = rot.solve(plot=False)
 
 
-    plt.scatter(img1[:,0], img2[:,1])
-    plt.show()
+    # plt.scatter(img1[:,0], img2[:,1])
+    # plt.show()
 
 
 
