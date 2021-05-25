@@ -6,8 +6,8 @@ import cvxpy as cp
 from pathlib import Path
 import os
 import sys
-sys.path.insert(0, './../')
-import plotter
+# sys.path.insert(0, './../')
+# import plotter
 
 def hist_from_images(img1: np.ndarray, img2: np.ndarray):
     """
@@ -76,34 +76,34 @@ class ROTSolver(object):
         coupling = P.value
 
         # print("Number of non-zero values in P: {} (n + m-1 = %d)".format(len(coupling[coupling > 1e-5]),
-                                                                         self.nsamples1 + self.nsamples2 - 1))
+        #                                                                  self.nsamples1 + self.nsamples2 - 1))
         # print("Objective function: {}".format(objective.value))
 
-        if plot:
-            # print("PLOTTING...")
-            # print('Generating plots ...')
-            plotter.generate_scatter_plots(self.dist1, self.dist2,
-                                           '{}/orig.png'.format(self.logdir))
-            plotter.generate_scatter_plots_with_coupling(self.dist1, self.dist2, coupling,
-                                                         '{}/coupling.png'.format(self.logdir))
+        # if plot:
+        #     # print("PLOTTING...")
+        #     # print('Generating plots ...')
+        #     plotter.generate_scatter_plots(self.dist1, self.dist2,
+        #                                    '{}/orig.png'.format(self.logdir))
+        #     plotter.generate_scatter_plots_with_coupling(self.dist1, self.dist2, coupling,
+        #                                                  '{}/coupling.png'.format(self.logdir))
 
         robust_OT_cost = objective.value
         return (robust_OT_cost, coupling)
 
-def ROT(img1 = None, img2 = None):
-    if img1 is None :
-        rng = np.random.RandomState(42)
-        # choose 2 images
-        print("IMPORT IMAGES...")
-        index = rng.choice(np.arange(199), 2, replace=False)
-        img1, img2 = np.load("../../../PRNI2018_TLp_bary/artificial_data.npy")[index]
+def ROT(img1 = None, img2 = None, *args):
+    # if img1 is None :
+    #     rng = np.random.RandomState(42)
+    #     # choose 2 images
+    #     print("IMPORT IMAGES...")
+    #     index = rng.choice(np.arange(199), 2, replace=False)
+    #     img1, img2 = np.load("../../../PRNI2018_TLp_bary/artificial_data.npy")[index]
         # a,b = img1.shape
         # a //= 2
         # b //= 2
         # img1 = img1[:a,b:]
         # img2 = img2[a:,b:]
 
-    size_x, size_y = img1.shape
+    # size_x, size_y = img1.shape
 
     # make it absolute value
     img1 = abs(img1)
