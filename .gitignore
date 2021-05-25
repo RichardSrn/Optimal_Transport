@@ -5,3 +5,7 @@ __pycache/*
 *.pdf
 *.log
 *.logs
+.pytest_cache
+.pytest_cache/*
+.ipynb_checkpoints
+.ipybn_checkpoints/*
