@@ -22,7 +22,7 @@ import sinkhorn_barycenters as sink
 from itertools import combinations
 
 #set variables
-n = 4 #choosing n pairs (noise, no noise) of random datasets
+n = 3 #choosing n pairs (noise, no noise) of random datasets
 epsilon = 1e-1 #will optimize this later
 max_iterations = 30000 #will optimize this later
 width = 50
@@ -128,7 +128,7 @@ def plot_compare(q_noise, q_nonoise):
 
 
            
-max_iterations = [1e8, 1e10, 1e11] #[1e4, 1e2] 
+max_iterations = [1e4] #, 1e10, 1e11] #[1e4, 1e2] 
 epsilon = [5e-3, 1e-1, .2, .5, .7] #[1e-1, .3] 
 parameters = []    
 qno = []
