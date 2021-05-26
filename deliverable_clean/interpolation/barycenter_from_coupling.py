@@ -11,14 +11,13 @@ def exact_barycenter(source, target, t):
     t is the weight in the formula :
         t -> argmin_mu (1-t)W_2(mu_f,mu)^2 + t*W_2(mu_g, mu)^2
     """
-    return (1 - t) * source + t * target
+    return t * source + (1 - t) * target
 
 
 def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y):
     """
     Align the interpolation on the grid.
     As some values of the exact_barycenter may be decimal, we need to interpolate them with the grid.
-
     for example :
         If a value has weight 1 on coordinate (0.5,0), this algorithm will output a weight of .5 on the coordinates (0,0) and (1,0).
     """
@@ -85,7 +84,6 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
     print("\tDONE.")
 
     return interpolated_barycenter
-
 
 def barycenter_from_coupling(coupling: np.ndarray, size_x, size_y):
     """

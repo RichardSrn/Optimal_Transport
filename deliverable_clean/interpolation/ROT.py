@@ -74,9 +74,9 @@ class ROTSolver(object):
         prob = cp.Problem(objective, constraints)
         print("\tDONE.")
 
-        print("Solve optimization problem.")
+        print("\tSolve optimization problem.")
         result = prob.solve(solver='SCS')
-        print("DONE.")
+        print("\tDONE.")
         
         coupling = P.value
 
