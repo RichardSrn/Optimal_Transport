@@ -87,20 +87,6 @@ def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed = 4
     hist_barycenter = barycenter_from_coupling(coupling, size_x, size_y)
     print("DONE. t =",round(time()-t,2),"s.")
 
-
-
-    # import matplotlib.pyplot as plt
-    # plt.figure(1,figsize=(15,5))
-    # plt.subplot(1,3,1)
-    # plt.plot(np.arange(2500), hist1)
-    # plt.subplot(1,3,2)
-    # plt.plot(np.arange(2500), hist2)
-    # plt.subplot(1,3,3)
-    # plt.plot(np.arange(2500), hist_barycenter)
-    # plt.show()
-
-
-
     print("\nReshape histogram barycenter into 2D barycenter.")
     # turn 1D histogram into 2D image
     barycenter = image_from_hist(hist_barycenter, size_x, size_y)
