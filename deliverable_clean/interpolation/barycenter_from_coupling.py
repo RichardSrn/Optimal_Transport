@@ -51,26 +51,31 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
         # Example, b = (.2, 0) with weight 1.
         #   then we attribute +.8 on the grid's point (0,0) and +.2 on (1,0).
         # In the end we return the grid's weights.
-        floor_x = int(x)
-        floor_y = int(y)
 
-        # upper_w_x stand for "upper weight for x axis".
-        upper_w_x = (x - floor_x) * barycenter_weights[k]
-        lower_w_x = (1 - x + floor_x) * barycenter_weights[k]
-        upper_w_y = (y - floor_y) * barycenter_weights[k]
-        lower_w_y = (1 - y + floor_y) * barycenter_weights[k]
+        # f_x stands for "floor coordinate on x axis"
+        f_x = int(x)
+        f_y = int(y)
+
+        # u_x stands for "upper weight on x axis", etc.
+        u_x = x     - f_x
+        l_x = f_x+1 - x #f_x+1 = ceiling(x)
+        u_y = y     - f_y
+        l_y = f_y+1 - y
 
         # by default we add to the floored points the corresponding weights.
-        interpolated_barycenter[floor_x, floor_y] += lower_w_x * lower_w_y
+        interpolated_barycenter[f_x,f_y] += l_x * l_y * barycenter_weights[k]
 
         # the below conditions are just here in case one of the points is on the edge of the
         # image, to avoid an "out of bound" error.
-        if floor_x < size_x-1:
-            interpolated_barycenter[floor_x + 1, floor_y] += upper_w_x * lower_w_y
-        if floor_y < size_y-1:
-            interpolated_barycenter[floor_x, floor_y + 1] += lower_w_x * upper_w_y
-        if floor_x < size_x-1 and floor_y < size_y-1:
-            interpolated_barycenter[floor_x + 1, floor_y + 1] += upper_w_x * upper_w_y
+
+        if f_x < size_x-1: # if not on right edge of the image
+            interpolated_barycenter[f_x + 1, f_y] += u_x * l_y * barycenter_weights[k]
+
+        if f_y < size_y-1: # if not on top edge of the image
+            interpolated_barycenter[f_x, f_y + 1] += l_x * u_y * barycenter_weights[k]
+
+        if f_x < size_x-1 and f_y < size_y-1: # if not on top right corner of the image
+            interpolated_barycenter[f_x + 1, f_y + 1] += u_x * l_y * barycenter_weights[k]
 
         if k/l > progress :
             progress += .2
