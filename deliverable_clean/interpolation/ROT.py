@@ -61,82 +61,42 @@ class ROTSolver(object):
         u = np.ones((self.nsamples2, 1))
         v = np.ones((self.nsamples1, 1))
 
-        # print("GETTING CONSTRAINTS...")
+        print("\tGenerate optimization constraints.")
         constraints = [0 <= P, cp.matmul(P, u) == a_tilde, cp.matmul(P.T, v) == b_tilde, 0 <= a_tilde, 0 <= b_tilde]
         constraints.append(cp.sum([((self.marginal1[i] - a_tilde[i]) ** 2) / self.marginal1[i]
                                    for i in range(self.nsamples1)]) <= self.rho)
         constraints.append(cp.sum([((self.marginal2[i] - b_tilde[i]) ** 2) / self.marginal2[i]
                                    for i in range(self.nsamples1)]) <= self.rho)
+        print("\tDONE.")
 
-        # print("CREATING OPTIMIZATION PROBLEM...")
+        print("\tGenerate optimization problem.")
         objective = cp.Minimize(cp.sum(cp.multiply(P, C)))
         prob = cp.Problem(objective, constraints)
-        # print("SOLVING PROBLEM...")
+        print("\tDONE.")
+
+        print("Solve optimization problem.")
         result = prob.solve(solver='SCS')
+        print("DONE.")
+        
         coupling = P.value
-
-        # print("Number of non-zero values in P: {} (n + m-1 = %d)".format(len(coupling[coupling > 1e-5]),
-        #                                                                  self.nsamples1 + self.nsamples2 - 1))
-        # print("Objective function: {}".format(objective.value))
-
-        # if plot:
-        #     # print("PLOTTING...")
-        #     # print('Generating plots ...')
-        #     plotter.generate_scatter_plots(self.dist1, self.dist2,
-        #                                    '{}/orig.png'.format(self.logdir))
-        #     plotter.generate_scatter_plots_with_coupling(self.dist1, self.dist2, coupling,
-        #                                                  '{}/coupling.png'.format(self.logdir))
 
         robust_OT_cost = objective.value
         return (robust_OT_cost, coupling)
 
-def ROT(img1 = None, img2 = None, *args):
-    # if img1 is None :
-    #     rng = np.random.RandomState(42)
-    #     # choose 2 images
-    #     print("IMPORT IMAGES...")
-    #     index = rng.choice(np.arange(199), 2, replace=False)
-    #     img1, img2 = np.load("../../../PRNI2018_TLp_bary/artificial_data.npy")[index]
-        # a,b = img1.shape
-        # a //= 2
-        # b //= 2
-        # img1 = img1[:a,b:]
-        # img2 = img2[a:,b:]
+def ROT(hist1 : np.ndarray, hist2 : np.ndarray, *args):
+    """
+    Adapted version of the robustOT algorithm to take as input 1D distributions,
+    instead of d-dimensional distributions, d>=2.
 
-    # size_x, size_y = img1.shape
+    Inputs :
+        hist1, hist2 : np.ndarray, size (n,1)
+    output :
+        coupling : np.ndarray, size (n,n), coupling matrix for the n points of the histograms.
+    """
 
-    # make it absolute value
-    img1 = abs(img1)
-    img2 = abs(img2)
-
-    # normalize the data
-    img1 = img1 / img1.sum()
-    img2 = img2 / img2.sum()
-
-    # turn 2D images into 1D vector --histogram--
-    # print("RESHAPE IMAGES INTO HISTOGRAMS...")
-    hist1, hist2 = hist_from_images(img1, img2)
-
-    # print("START SOLVING ROT...")
     rot = ROTSolver(hist1, hist2)
-    cost, coupling = rot.solve(plot=False)
-    # print(cost,coupling)
+    _, coupling = rot.solve(plot=False)
 
-    # print("START PLOTTING...")
-    # plt.figure(1, figsize=(15,5))
-    # plt.subplot(1,3,1)
-    # plt.imshow(img1)
-    # plt.subplot(1,3,2)
-    # plt.imshow(img2)
-    # plt.subplot(1,3,3)
-    # plt.imshow(coupling)
-    # plt.show()
-
-    # get the coupling matrix
-    # coupling = coupling_from_2_hist(hist1, hist2, TEST_ALG, size_x, size_y)
-
-    # # get the barycenter
-    # barycenter = barycenter_from_coupling(coupling, size_x, size_y)
     return coupling
 
 if __name__ == "__main__":

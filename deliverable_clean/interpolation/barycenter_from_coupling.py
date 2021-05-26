@@ -33,14 +33,19 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
     mu_s_coord, mu_t_coord = grid[mu_s_index], grid[mu_t_index]
 
     # compute the exact barycenter's coordinates in the 2D space.
+    print("\tCompute exact, euclidean, barycenter.")
     exact_baryc = exact_barycenter(mu_s_coord, mu_t_coord, 1 / 2)
+    print("\tDONE.")
 
     ##############################################
     # interpolate the coordinates with the grid. #
     ##############################################
+    print("\tInterpolate the exact barycenter with the grid.")
     interpolated_barycenter = np.zeros(shape=(size_x, size_y))
 
     k = 0
+    l = len(exact_baryc)
+    progress = .2 #loop progress in percent
     for x, y in exact_baryc:
         # For each point, if the points is not exactly on a grid's points, we interpolate it.
         # Example, b = (.2, 0) with weight 1.
@@ -67,7 +72,12 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
         if floor_x < size_x-1 and floor_y < size_y-1:
             interpolated_barycenter[floor_x + 1, floor_y + 1] += upper_w_x * upper_w_y
 
+        if k/l > progress :
+            progress += .2
+            print("\t\t",int(k/l*100),"%...")
         k += 1
+    print("\t\t 100 %")
+    print("\tDONE.")
 
     return interpolated_barycenter
 

@@ -17,6 +17,10 @@ def plot_baryc(img1: np.ndarray, img2: np.ndarray, barycenter: np.ndarray, title
 
     plt.suptitle(title, fontsize=15)
     if show:
+        print("\tShow the plot.")
         plt.show()
+        print("\tDONE.")
     if save:
+        print("\tSave the plot as image.")
         fig.savefig(title)
+        print("\tDONE.")
