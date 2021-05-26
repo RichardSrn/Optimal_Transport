@@ -30,6 +30,7 @@ from barycenter_from_coupling import barycenter_from_coupling
 from const import DATA_PATH, TEST_ALG, PLOT_TITLE
 from coupling_from_2_hist import coupling_from_2_hist
 from hist_from_images import hist_from_images
+from image_from_hist import image_from_hist
 from plot_baryc import plot_baryc
 from time import time 
 
@@ -81,9 +82,28 @@ def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed = 4
     coupling = coupling_from_2_hist(hist1, hist2, TEST_ALG, size_x, size_y)
     print("DONE. t =",round(time()-t,2),"s.")
 
-    print("\nGet barycenter from coupling matrix.")    
+    print("\nGet histogram barycenter from coupling matrix.")    
     # get the barycenter
-    barycenter = barycenter_from_coupling(coupling, size_x, size_y)
+    hist_barycenter = barycenter_from_coupling(coupling, size_x, size_y)
+    print("DONE. t =",round(time()-t,2),"s.")
+
+
+
+    # import matplotlib.pyplot as plt
+    # plt.figure(1,figsize=(15,5))
+    # plt.subplot(1,3,1)
+    # plt.plot(np.arange(2500), hist1)
+    # plt.subplot(1,3,2)
+    # plt.plot(np.arange(2500), hist2)
+    # plt.subplot(1,3,3)
+    # plt.plot(np.arange(2500), hist_barycenter)
+    # plt.show()
+
+
+
+    print("\nReshape histogram barycenter into 2D barycenter.")
+    # turn 1D histogram into 2D image
+    barycenter = image_from_hist(hist_barycenter, size_x, size_y)
     print("DONE. t =",round(time()-t,2),"s.")
 
     if show or save:

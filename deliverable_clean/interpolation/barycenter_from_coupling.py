@@ -56,10 +56,10 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
         f_y = int(y)
 
         # u_x stands for "upper weight on x axis", etc.
-        u_x = x     - f_x
         l_x = f_x+1 - x #f_x+1 = ceiling(x)
-        u_y = y     - f_y
+        u_x = x     - f_x
         l_y = f_y+1 - y
+        u_y = y     - f_y
 
         # by default we add to the floored points the corresponding weights.
         interpolated_barycenter[f_x,f_y] += l_x * l_y * barycenter_weights[k]
@@ -85,6 +85,26 @@ def interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, siz
 
     return interpolated_barycenter
 
+def histogram_barycenter(barycenter_coord, barycenter_weights, size_x, size_y) :
+    exact_baryc = exact_barycenter(barycenter_coord[0], barycenter_coord[1], 1/2)
+
+    baryc = np.zeros(shape = (size_x*size_y,1))
+
+    k = 0
+    for x in exact_baryc :
+        floor = int(x)
+
+        lower = floor+1 - x
+        upper = x       - floor
+
+        baryc[floor] += barycenter_weights[k]*lower
+        if upper > 0 :
+            baryc[floor+1] += barycenter_weights[k]*upper
+
+        k += 1
+
+    return baryc
+
 def barycenter_from_coupling(coupling: np.ndarray, size_x, size_y):
     """
     Computes the barycenter of the two histograms given the coupling matrix.
@@ -100,6 +120,11 @@ def barycenter_from_coupling(coupling: np.ndarray, size_x, size_y):
     # Turn the barycenter's coupling matrix index into actual 2D space coordinates,
     # then interpolate the exact coordinates of the points with the grid
     # and attribute the weight of each point.
-    barycenter = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
+    # barycenter = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
 
-    return barycenter
+
+    hist_baryc = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
+    # barycenter = hist_baryc.reshape(size_x,size_y)
+
+    # return barycenter
+    return hist_baryc
