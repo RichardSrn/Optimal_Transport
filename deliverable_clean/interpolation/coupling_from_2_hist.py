@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 from cost_matrix import cost_matrix

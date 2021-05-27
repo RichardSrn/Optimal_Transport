@@ -23,6 +23,7 @@ Execute script and behavior :
 """
 
 import sys
+from time import time
 
 import numpy as np
 
@@ -32,17 +33,16 @@ from coupling_from_2_hist import coupling_from_2_hist
 from hist_from_images import hist_from_images
 from image_from_hist import image_from_hist
 from plot_baryc import plot_baryc
-from time import time 
 
 
-def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed = 42, absolute = True):
+def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed=42, absolute=True):
     t = time()
     # define the rng
     rng = np.random.RandomState(seed)
 
     if img1 is None:
         # choose 2 images
-        print("\nNo image input, choose 2 random images from \n",DATA_PATH,"\nRNG_seed = ", seed, sep = "")
+        print("\nNo image input, choose 2 random images from \n", DATA_PATH, "\nRNG_seed = ", seed, sep="")
         index = rng.choice(np.arange(199), 2, replace=False)
         img1, img2 = np.load(DATA_PATH)[index]
         print("DONE.")
@@ -50,47 +50,46 @@ def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed = 4
     # get image shape, assuming both images are same shape.
     size_x, size_y = img1.shape
 
-    if absolute :
+    if absolute:
         print("\nTurn images' values absolute to avoid errors.")
         # make it absolute value
         img1 = abs(img1)
         img2 = abs(img2)
-        print("DONE. t =",round(time()-t,2),"s.")
-
+        print("DONE. t =", round(time() - t, 2), "s.")
 
         print("\nNormalize the data.")
         # normalize the data
         img1 = img1 / img1.sum()
         img2 = img2 / img2.sum()
-        print("DONE. t =",round(time()-t,2),"s.")
+        print("DONE. t =", round(time() - t, 2), "s.")
 
-    else :
+    else:
         print("\nNormalize the data.")
         # normalize the data
         img1 = img1 / abs(img1).sum()
         img2 = img2 / abs(img2).sum()
-        print("DONE. t =",round(time()-t,2),"s.")
+        print("DONE. t =", round(time() - t, 2), "s.")
 
     print("\nReshape the 2D images into 1D histograms.")
     # turn 2D images into 1D vector --histogram--
     hist1, hist2 = hist_from_images(img1, img2)
-    print("DONE. t =",round(time()-t,2),"s.")
+    print("DONE. t =", round(time() - t, 2), "s.")
 
     print("\nGet coupling matrix from the two histograms;")
-    print("use", TEST_ALG,".")
+    print("use", TEST_ALG, ".")
     # get the coupling matrix
     coupling = coupling_from_2_hist(hist1, hist2, TEST_ALG, size_x, size_y)
-    print("DONE. t =",round(time()-t,2),"s.")
+    print("DONE. t =", round(time() - t, 2), "s.")
 
-    print("\nGet histogram barycenter from coupling matrix.")    
+    print("\nGet histogram barycenter from coupling matrix.")
     # get the barycenter
     hist_barycenter = barycenter_from_coupling(coupling, size_x, size_y)
-    print("DONE. t =",round(time()-t,2),"s.")
+    print("DONE. t =", round(time() - t, 2), "s.")
 
     print("\nReshape histogram barycenter into 2D barycenter.")
     # turn 1D histogram into 2D image
     barycenter = image_from_hist(hist_barycenter, size_x, size_y)
-    print("DONE. t =",round(time()-t,2),"s.")
+    print("DONE. t =", round(time() - t, 2), "s.")
 
     if show or save:
         print("\nMake plot.")
@@ -98,11 +97,11 @@ def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed = 4
             plot_baryc(img1, img2, barycenter, title=PLOT_TITLE, show=show, save=save)
         else:
             plot_baryc(img1, img2, barycenter, title=plot_title, show=show, save=save)
-        print("DONE. t =",round(time()-t,2),"s.")
+        print("DONE. t =", round(time() - t, 2), "s.")
 
     print("\nSave barycenter matrix as barycenter.npy.")
     np.save("barycenter.npy", barycenter)
-    print("DONE. t =",round(time()-t,2),"s.")
+    print("DONE. t =", round(time() - t, 2), "s.")
 
     return barycenter
 
