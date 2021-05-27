@@ -83,20 +83,21 @@ def main(img1=None, img2=None, save=False, show=False, plot_title=None, seed=42,
 
     print("\nGet histogram barycenter from coupling matrix.")
     # get the barycenter
-    hist_barycenter = barycenter_from_coupling(coupling, size_x, size_y)
+    # hist_barycenter = barycenter_from_coupling(coupling, size_x, size_y)
+    barycenter = barycenter_from_coupling(coupling, size_x, size_y)
     print("DONE. t =", round(time() - t, 2), "s.")
 
-    print("\nReshape histogram barycenter into 2D barycenter.")
-    # turn 1D histogram into 2D image
-    barycenter = image_from_hist(hist_barycenter, size_x, size_y)
-    print("DONE. t =", round(time() - t, 2), "s.")
+    # print("\nReshape histogram barycenter into 2D barycenter.")
+    # # turn 1D histogram into 2D image
+    # barycenter = image_from_hist(hist_barycenter, size_x, size_y)
+    # print("DONE. t =", round(time() - t, 2), "s.")
 
     if show or save:
         print("\nMake plot.")
         if plot_title is None:
-            plot_baryc(img1, img2, barycenter, title=PLOT_TITLE, show=show, save=save)
+            plot_baryc(img1, img2, barycenter, t=t, title=PLOT_TITLE, show=show, save=save)
         else:
-            plot_baryc(img1, img2, barycenter, title=plot_title, show=show, save=save)
+            plot_baryc(img1, img2, barycenter, t=t, title=plot_title, show=show, save=save)
         print("DONE. t =", round(time() - t, 2), "s.")
 
     print("\nSave barycenter matrix as barycenter.npy.")
