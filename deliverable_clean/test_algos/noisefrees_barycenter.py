@@ -6,7 +6,7 @@ import ot
 
 
 def noisefrees_bary():
-    noisefrees = np.load("./data/noisefrees.npy")[:-1]
+    noisefrees = np.load("./data/noisefrees.npy")[:5]
 
     # a = []
     # for nf in noisefrees:
@@ -19,7 +19,7 @@ def noisefrees_bary():
 
     bary = ot.bregman.convolutional_barycenter2d(noisefrees, reg=0.004)
 
-    np.save("./results/noisefrees_control/noisefrees_barycenter.npy", bary)
+    np.save("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.npy", bary)
 
     # bary = np.load("./results/noisefrees_control/noisefrees_barycenter.npy")
 
@@ -35,8 +35,8 @@ def noisefrees_bary():
     plt.subplot(3, 3, 9)
     plt.imshow(bary)
     plt.title("barycenter")
+    plt.savefig("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.png")
     plt.show()
-    plt.savefig("./results/noisefrees_control/noisefrees_barycenter.png")
 
 
 if __name__ == "__main__":

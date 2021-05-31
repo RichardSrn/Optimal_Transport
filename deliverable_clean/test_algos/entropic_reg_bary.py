@@ -38,7 +38,7 @@ def entropic_reg_bary(plot=True, save=True):
     if plot:
         plt.show()
     if save:
-        plt.savefig("./results/entropic_reg_bary/" + title + ".png")
+        plt.savefig("./results/entropic_reg_bary/entropic_"+str(reg)+"_reg_"+str(data.shape[0])+"_samples.png")
 
 
 if __name__ == "__main__":
