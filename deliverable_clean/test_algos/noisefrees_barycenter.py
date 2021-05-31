@@ -19,9 +19,9 @@ def noisefrees_bary():
 
     bary = ot.bregman.convolutional_barycenter2d(noisefrees, reg=0.004)
 
-    np.save("./results/noisefrees_barycenter.npy", bary)
+    np.save("./results/noisefrees_control/noisefrees_barycenter.npy", bary)
 
-    # bary = np.load("./results/noisefrees_barycenter.npy")
+    # bary = np.load("./results/noisefrees_control/noisefrees_barycenter.npy")
 
     bary = bary.reshape((50, 50))
 
@@ -36,7 +36,7 @@ def noisefrees_bary():
     plt.imshow(bary)
     plt.title("barycenter")
     plt.show()
-    plt.savefig("./results/noisefrees_barycenter.png")
+    plt.savefig("./results/noisefrees_control/noisefrees_barycenter.png")
 
 
 if __name__ == "__main__":
