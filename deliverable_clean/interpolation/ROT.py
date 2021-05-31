@@ -1,13 +1,10 @@
 # Code for robust optimal transport formulation
 
-import numpy as np
-import matplotlib.pyplot as plt
-import cvxpy as cp
 from pathlib import Path
-import os
-import sys
-# sys.path.insert(0, './../')
-# import plotter
+
+import cvxpy as cp
+import numpy as np
+
 
 def hist_from_images(img1: np.ndarray, img2: np.ndarray):
     """
@@ -32,12 +29,12 @@ class ROTSolver(object):
         self.nsamples2 = nsamples2
 
         if marginal1 is None:
-            self.marginal1 = np.array([1/nsamples1 for i in range(nsamples1)])
+            self.marginal1 = np.array([1 / nsamples1 for i in range(nsamples1)])
         else:
             self.marginal1 = marginal1
 
         if marginal2 is None:
-            self.marginal2 = np.array([1/nsamples2 for i in range(nsamples2)])
+            self.marginal2 = np.array([1 / nsamples2 for i in range(nsamples2)])
         else:
             self.marginal2 = marginal2
         self.marginal1 = np.expand_dims(self.marginal1, axis=1)
@@ -77,13 +74,14 @@ class ROTSolver(object):
         print("\tSolve optimization problem.")
         result = prob.solve(solver='SCS')
         print("\tDONE.")
-        
+
         coupling = P.value
 
         robust_OT_cost = objective.value
         return (robust_OT_cost, coupling)
 
-def ROT(hist1 : np.ndarray, hist2 : np.ndarray, *args):
+
+def ROT(hist1: np.ndarray, hist2: np.ndarray, *args):
     """
     Adapted version of the robustOT algorithm to take as input 1D distributions,
     instead of d-dimensional distributions, d>=2.
@@ -98,6 +96,3 @@ def ROT(hist1 : np.ndarray, hist2 : np.ndarray, *args):
     _, coupling = rot.solve(plot=False)
 
     return coupling
-
-if __name__ == "__main__":
-    ROT()

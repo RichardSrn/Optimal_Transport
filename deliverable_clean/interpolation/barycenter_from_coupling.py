@@ -120,11 +120,8 @@ def barycenter_from_coupling(coupling: np.ndarray, size_x, size_y):
     # Turn the barycenter's coupling matrix index into actual 2D space coordinates,
     # then interpolate the exact coordinates of the points with the grid
     # and attribute the weight of each point.
-    # barycenter = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
+    barycenter = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
+    return barycenter
 
-
-    hist_baryc = interpolate_with_mesh_grid(barycenter_coord, barycenter_weights, size_x, size_y)
-    # barycenter = hist_baryc.reshape(size_x,size_y)
-
-    # return barycenter
-    return hist_baryc
+    # hist_baryc = histogram_barycenter(barycenter_coord, barycenter_weights, size_x, size_y)
+    # return hist_baryc
