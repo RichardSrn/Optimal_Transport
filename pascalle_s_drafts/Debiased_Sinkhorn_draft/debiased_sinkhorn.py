@@ -7,6 +7,7 @@
 import sinkhorn_barycenters as sink
 import numpy as np
 from time import time
+import torch
 
 from constants import N, grouping, max_iter
 
@@ -17,7 +18,11 @@ This algorithm takes runs the Sinkhorn Debiased algorithm to compute the barycen
 """
 
 
-def debiased_sinkhorn(img_index, P_noise, K_noise, P_nonoise, K_nonoise):
+
+#Put P here
+
+
+def debiased_sinkhorn(img_index, P_nonoise, K_nonoise, P_noise, K_noise):
     t = time()
     qnonoise = []
     qnoise = []
@@ -28,12 +33,14 @@ def debiased_sinkhorn(img_index, P_noise, K_noise, P_nonoise, K_nonoise):
 
     
     elif grouping == "pairs":
-        for i in range(img_index):
-            P = [P_nonoise[i][0], P_nonoise[i][1]]
+        for i in range(len(img_index)):
+            P = torch.stack([P_nonoise[i][0], P_nonoise[i][1]], dim=0)
+            #print(P_nonoise[i][0].shape)
+            #print(P.shape)
             q = sink.barycenter(P, K_nonoise, reference="debiased", maxiter = max_iter)
             qnonoise.append(q)
-        for i in range(img_index):
-            P = [P_noise[i][0], P_noise[i][1]]
+        for i in range(len(img_index)):
+            P = torch.stack([P_noise[i][0], P_noise[i][1]], dim=0)
             q = sink.barycenter(P, K_noise, reference="debiased", maxiter = max_iter)
             qnoise.append(q)
             

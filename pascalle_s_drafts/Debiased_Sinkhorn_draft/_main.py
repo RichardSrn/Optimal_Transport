@@ -7,6 +7,7 @@
 import sys
 
 import numpy as np
+
 from load_data import load_data
 from time import time 
 from computeK import computeK 
@@ -21,39 +22,33 @@ def main(seed = 42): #img1=None, img2=None, save=False, show=False, plot_title=N
     
     # get the corresponding image sets with and without noise
     img_index, nonoise, noise = load_data(seed)
-    print(img_index)
-    
-    #compute the cost matrices and K's to insert into sinkhorn algo
-    Pnonoise, Knonoise = computeK(nonoise)
-    Pnoise, Knoise = computeK(noise)
-    
-    
-    #run sinkhorn algorithm to calculate barycenters
-    qnonoise_barycenter, qnoise_barycenter = debiased_sinkhorn(img_index, Pnonoise, Knonoise, Pnoise, Knoise)
-    
-    
-    #save data files
-    parameters = [grouping, N, img_index, epsilon, max_iter]
-    np.save(f"./qnonoise_barycenters_{grouping}_{epsilon}.npy", qnonoise_barycenter)
-    np.save(f"./qwithnoise_barycenters_{grouping}_{epsilon}.npy", qnoise_barycenter)           
-    np.save(f"./parameters_barycenters_{grouping}_{epsilon}.npy", parameters)  
-    
-    #plot barycenters
-    plot_barycenter(qnonoise_barycenter, qnoise_barycenter, parameters)
-
-    
-    
-    return parameters, qnonoise_barycenter
+    #print(img_index)
+    #print(img_index[0])
 
 
-parameters, qnonoise_barycenter = main()
+    for i in range(len(epsilon)):
+        print(i)
+        #compute the cost matrices and K's to insert into sinkhorn algo
+        Pnonoise, Knonoise = computeK(nonoise, epsilon[i])
+        Pnoise, Knoise = computeK(noise, epsilon[i])  
+        #run sinkhorn algorithm to calculate barycenters
+        qnonoise_barycenter, qnoise_barycenter = debiased_sinkhorn(img_index, Pnonoise, Knonoise, Pnoise, Knoise)
+        print(len(qnoise_barycenter))
+        #save data files
+        parameters = [grouping, N, img_index, epsilon[i], max_iter]
+        np.save(f"./Data/qnonoise_barycenters_{grouping}{N}_{epsilon[i]}.npy", qnonoise_barycenter)
+        np.save(f"./Data/qwithnoise_barycenters_{grouping}{N}_{epsilon[i]}.npy", qnoise_barycenter)           
+        np.save(f"./Data/parameters_barycenters_{grouping}{N}_{epsilon[i]}.npy", parameters) 
+        
+        
+        #plot barycenters and save
+        plot_barycenter(qnonoise_barycenter, qnoise_barycenter, parameters, i)
+            
 
-print(parameters)
-print(qnonoise_barycenter)
-#print(qnonoise.shape)
-#print(qnoise.shape)
-#print(qnonoise)
-#print(qnoise)
+    return #parameters, qnoise_barycenter, qnonoise_barycenter
+
+
+main()
 
   
 """
@@ -62,6 +57,16 @@ ANALYZING RESULTS
 print(img_index)
 print(qnonoise.shape)
 print(qnoise.shape)
+
+parameters, qnoise_barycenter, qnonoise_barycenter = main()
+
+print(parameters)
+print(qnonoise_barycenter)
+print(qnoise_barycenter)
+#print(qnonoise.shape)
+#print(qnoise.shape)
+#print(qnonoise)
+#print(qnoise)
 """    
 
 #keep functions outside of other functions for reachability    

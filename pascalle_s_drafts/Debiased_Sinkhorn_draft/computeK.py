@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import torch
 
-from constants import DATAPATH_NOISE, DATAPATH_NONOISE, N, grouping, epsilon, width
+from constants import DATAPATH_NOISE, DATAPATH_NONOISE, N, grouping, width
 from time import time 
 
 """
@@ -21,7 +21,7 @@ K is the 50x50 manipulation of the cost matrix M to use as input for the sinkhor
 
 
 #formatting function
-def computeK(imgset):
+def computeK(imgset, epsilon):
     t = time()
     print("computing K...")
     P = torch.from_numpy(imgset)    
