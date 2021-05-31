@@ -7,14 +7,14 @@ import numpy as np
 from scipy.stats import multivariate_normal
 
 def get_title(lvl, mean, sign_digits):
-    if lvl == 0:
-        lvl = '0.'+'0'*(sign_digits-2)
+    if lvl == int(lvl):
+        lvl = str(int(lvl))+'.'+'0'*(sign_digits-2)
     else :
         lvl = str(lvl)
         while len(lvl) < sign_digits :
             lvl = lvl+'0'
-    if mean == 0:
-        mean = '0.'+'0'*(sign_digits-2)
+    if mean == int(mean):
+        mean = str(int(mean))+'.'+'0'*(sign_digits-2)
     else :
         mean = str(mean)
         while len(mean) < sign_digits :
@@ -22,7 +22,7 @@ def get_title(lvl, mean, sign_digits):
     title = './artificial_data_lvl_'+lvl+'_mean_'+mean+'.npy'
     return title
 
-def generate_data(seed=42, nb_samples = 10,
+def generate_data(seed=42, nb_samples = 100,
                   x_size=50, y_size = 50,
                   noise_level = 0, noise_mean = 0):
     
@@ -80,11 +80,11 @@ def generate_data(seed=42, nb_samples = 10,
 
     title = get_title(noise_level, noise_mean, 5)
     np.save("./data/"+title, patterns)
-
+    np.save("./data/noisefrees.npy",noisefrees)
     return patterns
 
 
 if __name__=="__main__":
-    for i in np.array([0,0.025,0.05,0.1,0.15,0.2])*100 :
-        for j in [0,0.025,0.05,0.1,0.15,0.2] :
+    for i in [0] : #np.array([0,0.025,0.05,0.1,0.15,0.2])*100 :
+        for j in [0,0.05,0.1,0.2,0.5,1] :
             generate_data(noise_mean = i, noise_level = j)
