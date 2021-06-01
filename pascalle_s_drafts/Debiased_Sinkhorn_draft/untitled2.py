@@ -8,7 +8,7 @@ Created on Wed May 26 22:50:25 2021
 
 import numpy as np
 import os
-from load_data import load_data
+#from load_data import load_data
 
 
 #seed = 42
@@ -19,6 +19,11 @@ from load_data import load_data
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
-parameters = np.load(CURR_DIR + "/Data/parameters_barycenters_pairs3_0.1.npy", allow_pickle=True)
+#parameters = np.load(CURR_DIR + "/Data/parameters_barycenters_pairs3_0.1.npy", allow_pickle=True)
 
-print(parameters)
+#print(parameters)
+
+
+files = np.load(../CURR_DIR+ "/test_algos/data/artificial_data_lvl_0.000_mean_0.000.npy")
+
+print(files.shape)

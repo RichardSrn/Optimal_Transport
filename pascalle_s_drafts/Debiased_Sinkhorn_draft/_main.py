@@ -33,7 +33,6 @@ def main(seed = 42): #img1=None, img2=None, save=False, show=False, plot_title=N
         Pnoise, Knoise = computeK(noise, epsilon[i])  
         #run sinkhorn algorithm to calculate barycenters
         qnonoise_barycenter, qnoise_barycenter = debiased_sinkhorn(img_index, Pnonoise, Knonoise, Pnoise, Knoise)
-        print(len(qnoise_barycenter))
         #save data files
         parameters = [grouping, N, img_index, epsilon[i], max_iter]
         np.save(f"./Data/qnonoise_barycenters_{grouping}{N}_{epsilon[i]}.npy", qnonoise_barycenter)
