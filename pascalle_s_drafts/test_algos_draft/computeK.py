@@ -9,7 +9,6 @@ import sys
 import numpy as np
 import torch
 
-from constants import DATAPATH_NOISE, DATAPATH_NONOISE, N, grouping, width
 from time import time 
 
 """
@@ -19,6 +18,7 @@ P is a tensor object of all the images or image sets
 K is the 50x50 manipulation of the cost matrix M to use as input for the sinkhorn algo
 """
 
+width = 50
 
 #formatting function
 def computeK(imgset, epsilon):
