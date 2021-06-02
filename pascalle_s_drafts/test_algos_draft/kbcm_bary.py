@@ -68,12 +68,26 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
     #if save:
     #    plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")
  
+"""
+Richard can you run this piece and save the charts for me manually (or auto if you can)
+Here's the file names I'm using
 
+kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
+     ^^^change reg parameter
+"""
 if __name__ == "__main__":
     reg = [.025, .05, .075, .1]
     for r in reg:
         kbcm_bary(reg = r, max_iter = 300)
  
+    
+    
+    
+    
+    
+    
+    
+    
 #run overnight       
 #reg = .001 is taking a very long time to run
 #reg = .01 is taking along time to run        
