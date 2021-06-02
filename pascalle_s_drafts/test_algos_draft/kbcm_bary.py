@@ -12,7 +12,7 @@ from os.path import isfile, join
 
 import matplotlib.pyplot as plt
 import numpy as np
-import ot
+# import ot
 
 from barycenter_model import kbcm
 
@@ -40,6 +40,19 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
         k = 1
     
     for file in files:
+        print(file)
+        if "lvl_0.000_mean_0.000" in file :
+            print("continue")
+            continue
+
+        if "lvl_0.050_mean_0.000" in file :
+            print("continue")
+            continue
+
+        if "lvl_0.100_mean_0.000" in file :
+            print("continue")
+            continue
+
         title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_c_" + str(c)
         data = np.load("./data/" + file)
         data = data[:5] #to truncate the dataset for testing
@@ -65,8 +78,8 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
     
     if plot:
         plt.show()
-    #if save:
-    #    plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")
+    if save:
+        plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")
  
 """
 Richard can you run this piece and save the charts for me manually (or auto if you can)
@@ -76,7 +89,8 @@ kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
      ^^^change reg parameter
 """
 if __name__ == "__main__":
-    reg = [.025, .05, .075, .1]
+    # reg = [.025, .05, .075, .1]
+    reg = [0.025]
     for r in reg:
         kbcm_bary(reg = r, max_iter = 300)
  
