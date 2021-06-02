@@ -41,7 +41,7 @@ def get_files():
 #        Stop threshold for inner loop 
 ###
         
-def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, inItermax=100, outstopThr=1e-8, instopThr=1e-8, plot=True, save=True):      
+def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weights=None, inItermax=100, outstopThr=1e-8, instopThr=1e-8, log=False, plot=True, save=True):      
 
     files = get_files()       
     if plot:
@@ -52,7 +52,9 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, inIt
         title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax)
         data = np.load("./data/" + file)
         data = data[:5] #to truncate the dataset for testing
-        data = np.reshape(data, (len(data), 2500))    
+        data = np.reshape(data, (len(data), 2500))   
+        print(data[0])
+        #data = data.reshape((-1, x_size * y_size))
         data = data.T
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
@@ -63,8 +65,10 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, inIt
         hs_hat = hs / mass_hs
 
         # barycenter of tlp_bi
-        bary = tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, outItermax, outstopThr, inItermax, instopThr)
+        bary, barys = tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, weights, outItermax, outstopThr, inItermax, instopThr, log=log)
+        print(bary[0])
         bary = np.reshape(bary, (50,50)) 
+        #print(bary[0])
 
 
         np.save("./results/tlp_bary/" + title + ".npy", bary)
@@ -82,9 +86,18 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, inIt
  
 
 if __name__ == "__main__":
-    reg = [.05] #[.01, .05, .1, .5]
-    for r in reg:
-        tlp_bary(reg = r)
+    reg = [.001, .01, .1, .3, .7, .9]
+    eta = [.001, .1, .05, .7]
+    for r in reg: 
+        for e in eta:
+            tlp_bary(reg = r, eta = e, outItermax = 20, inItermax=100, outstopThr=1e-10, instopThr=1e-10)
+    
+    
+    
+    
+    #reg = [.05] #[.01, .05, .1, .5]
+    #for r in reg:
+    #    tlp_bary(reg = r)
         
         
         
