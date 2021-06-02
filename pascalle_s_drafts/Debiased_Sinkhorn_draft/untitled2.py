@@ -38,13 +38,13 @@ import ot
 
 
 
-data = np.load("data/artificial_data_lvl_0.000_mean_0.000.npy")
+data = np.load("results/tlp_bary/bary_lvl_0.050_mean_0.000_reg_0.1_eta_0.1_outer-inner_10-100.npy", allow_pickle=True)
 data = data[:3] #to truncate the dataset for testing
 print(data.shape)
 print(data[0].shape)
-data = np.reshape(data, (len(data), 2500))
-print(data.shape)
-print(data[0].shape)
+#data = np.reshape(data, (len(data), 2500))
+#print(data.shape)
+#print(data[0].shape)
 print(data[0])
 
 

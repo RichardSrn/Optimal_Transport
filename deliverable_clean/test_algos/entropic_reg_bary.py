@@ -16,7 +16,7 @@ def get_files():
         yield file
 
 
-def entropic_reg_bary(plot=True, save=True):
+def entropic_reg_bary(plot=True, save=True, show=False):
     files = get_files()
     reg = 0.04
     if plot:
@@ -25,7 +25,7 @@ def entropic_reg_bary(plot=True, save=True):
 
     for file in files:
         title = "bary" + file[15:-4] + "_reg_" + str(reg)
-        data = np.load("./data/" + file)
+        data = np.load("./data/" + file)[:5]
         bary = ot.bregman.convolutional_barycenter2d(data, reg=0.04)
         np.save("./results/entropic_reg_bary/" + title + ".npy", bary)
 
@@ -35,7 +35,7 @@ def entropic_reg_bary(plot=True, save=True):
             plt.imshow(bary)
             k += 1
 
-    if plot:
+    if show:
         plt.show()
     if save:
         plt.savefig("./results/entropic_reg_bary/entropic_"+str(reg)+"_reg_"+str(data.shape[0])+"_samples.png")

@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import ot
-
+from cost_matrix import cost_matrix
 
 def noisefrees_bary():
     noisefrees = np.load("./data/noisefrees.npy")[:5]
@@ -12,27 +12,20 @@ def noisefrees_bary():
     # for nf in noisefrees:
     #     a.append(nf.reshape(-1))
     # noisefrees = np.array(a).T
-    #
-    # m = cost_matrix(50, 50)
-    #
+    # #
+    # m = cost_matrix(50, 50) + 0.001
+    # #
     # bary = ot.bregman.barycenter(A=noisefrees, M=m, reg=0.004)
 
     bary = ot.bregman.convolutional_barycenter2d(noisefrees, reg=0.004)
 
     np.save("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.npy", bary)
 
-    # bary = np.load("./results/noisefrees_control/noisefrees_barycenter.npy")
+    # bary = np.load("./results/noisefrees_control/noisefrees_barycenter_2_samples.npy")
 
     bary = bary.reshape((50, 50))
 
-    plt.figure(1, figsize=(15, 15))
-    for i in range(4):
-        for j in range(4):
-            if 4 * i + j >= noisefrees.shape[0]:
-                break
-            plt.subplot(4, 4, 4 * i + j + 1)
-            plt.imshow(noisefrees[4 * i + j])
-    plt.subplot(3, 3, 9)
+    plt.figure(1, figsize=(10, 10))
     plt.imshow(bary)
     plt.title("barycenter")
     plt.savefig("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.png")
