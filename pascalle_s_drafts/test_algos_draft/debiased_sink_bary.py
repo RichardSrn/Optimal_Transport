@@ -45,7 +45,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), plot=True, save=True)
         title = "bary" + file[15:-4] + "_eps_" + str(epsilon)
         #print(title)
         data = np.load("./data/" + file)
-        #data = data[:10] #to truncate the dataset for testing
+        #data = data[:5] #to truncate the dataset for testing
         print("./data/" + file)
 
         #compute P and K using computeK()

@@ -9,7 +9,7 @@ Created on Wed May 26 22:50:25 2021
 import numpy as np
 import os
 os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
-from debiased_sink_bary import debiased_sink_bary
+
 #from load_data import load_data
 
 
@@ -30,16 +30,39 @@ from debiased_sink_bary import debiased_sink_bary
 
 #print(files.shape )
 
-#eps = [.001, .025, .05, .075, .1, .15, .2, .3, .5, .7 ]
- 
-#for e in eps:
-#    debiased_sink_bary(e) 
+import matplotlib.pyplot as plt
+import numpy as np
+import ot
 
-max_iter = [100, 500, 750, 1000, 2500, 3000, 5000]
-eps = [.001, .025, .05, .075, .1, .15, .2, .3, .5, .7 ]
- 
-for m in max_iter:
-    print(m)
-    for e in eps:
-        print(e)
-        debiased_sink_bary(e, m) 
+
+
+
+
+data = np.load("data/artificial_data_lvl_0.000_mean_0.000.npy")
+data = data[:3] #to truncate the dataset for testing
+print(data.shape)
+print(data[0].shape)
+data = np.reshape(data, (len(data), 2500))
+print(data.shape)
+print(data[0].shape)
+print(data[0])
+
+
+        
+#data = data.reshape((-1, x_size * y_size))        
+        
+        
+        
+        
+        
+        
+    #print(data[i].ravel())
+    #print(new_data.shape) 
+    #print(new_data[0].shape) 
+    #print(new_data[0])
+    
+    ##flatten the data so it is a [2500, N] array
+    #print(data[0].shape)
+    #print(np.prod(data[0].shape))
+    #print(data[0].reshape(np.prod(data[0].shape)))
+        
