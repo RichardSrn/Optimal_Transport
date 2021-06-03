@@ -3,19 +3,17 @@
 """
 @author: bananasacks
 """
-import os
 
 from os import listdir
 from os.path import isfile, join
 
-#os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
-
 import matplotlib.pyplot as plt
 import numpy as np
-import ot
 
 from barycenter_model import tlp_bi
 
+
+# os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 
 def get_files():
@@ -25,8 +23,9 @@ def get_files():
 
     for file in onlyfiles:
         yield file
-  
-#parameters
+
+
+# parameters
 #    reg : float
 #        Entropic regularization term
 #    eta : float
@@ -40,21 +39,23 @@ def get_files():
 #    instopThr : float
 #        Stop threshold for inner loop 
 ###
-        
-def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weights=None, inItermax=100, outstopThr=1e-8, instopThr=1e-8, log=False, plot=True, save=True):      
 
-    files = get_files()       
+def tlp_bary(reg=0.1, eta=0.1, x_size=50, y_size=50, outItermax=10, weights=None, inItermax=100, outstopThr=1e-8,
+             instopThr=1e-8, log=False, plot=True, show=False, save=True):
+
+    files = get_files()
     if plot:
         plt.figure(1, figsize=(15, 10))
         k = 1
-    
+
     for file in files:
-        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax)
+        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_eta_" + str(eta) + "_outer-inner_" + str(
+            outItermax) + "-" + str(inItermax)
         data = np.load("./data/" + file)
-        data = data[:5] #to truncate the dataset for testing
-        data = np.reshape(data, (len(data), 2500))   
+        data = data[:5]  # to truncate the dataset for testing
+        data = np.reshape(data, (len(data), 2500))
         print(data[0])
-        #data = data.reshape((-1, x_size * y_size))
+        # data = data.reshape((-1, x_size * y_size))
         data = data.T
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
@@ -65,41 +66,30 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
         hs_hat = hs / mass_hs
 
         # barycenter of tlp_bi
-        bary, barys = tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, weights, outItermax, outstopThr, inItermax, instopThr, log=log)
+        bary, barys = tlp_bi(hs=hs, hs_hat=hs_hat, x_size=x_size, y_size=y_size, reg=reg, eta=eta, weights=weights,
+                             outItermax=outItermax, outstopThr=outstopThr, inItermax=inItermax,
+                             instopThr=instopThr, log=log)
         print(bary[0])
-        bary = np.reshape(bary, (50,50)) 
-        #print(bary[0])
-
+        bary = np.reshape(bary, (50, 50))
+        # print(bary[0])
 
         np.save("./results/tlp_bary/" + title + ".npy", bary)
-    
+
         if plot:
             plt.subplot(2, 3, k)
-            plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
+            plt.title(title[:len(title) // 2] + "\n" + title[len(title) // 2:])
             plt.imshow(bary)
             k += 1
-    
-    if plot:
-        plt.show()
-    #if save:
-    #    plt.savefig("./results/tlp_bary/tlp_"+str(reg)+"_reg_"+str(eta)+"_eta_"+str(data.shape[0])+"_samples.png")
- 
+
+    if plot :
+        if show:
+            plt.show()
+        if save:
+           plt.savefig("./results/tlp_bary/tlp_"+str(reg)+"_reg_"+str(eta)+"_eta_"+str(data.shape[0])+"_samples.png")
 
 if __name__ == "__main__":
     reg = [.001, .01, .1, .3, .7, .9]
     eta = [.001, .1, .05, .7]
-    for r in reg: 
+    for r in reg:
         for e in eta:
-            tlp_bary(reg = r, eta = e, outItermax = 20, inItermax=100, outstopThr=1e-10, instopThr=1e-10)
-    
-    
-    
-    
-    #reg = [.05] #[.01, .05, .1, .5]
-    #for r in reg:
-    #    tlp_bary(reg = r)
-        
-        
-        
-        
-        
+            tlp_bary(reg=r, eta=e, outItermax=20, inItermax=100, outstopThr=1e-10, instopThr=1e-10)
