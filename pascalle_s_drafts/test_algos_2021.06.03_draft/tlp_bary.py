@@ -16,13 +16,19 @@ from barycenter_model import tlp_bi
 # os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 
-def get_files():
+def get_data_files_name():
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
     onlyfiles = [file for file in onlyfiles if file[-5:] == "0.npy"]
     onlyfiles.sort()
 
     for file in onlyfiles:
         yield file
+
+def get_already_computed_files_name():
+    onlyfiles = [f for f in listdir("./results/tlp_bary/") if isfile(join("./results/tlp_bary/", f))]
+    onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
+    onlyfiles.sort()
+    return onlyfiles
 
 
 # parameters
@@ -42,48 +48,56 @@ def get_files():
 
 def tlp_bary(reg=0.1, eta=0.1, x_size=50, y_size=50, outItermax=10, weights=None, inItermax=100, outstopThr=1e-8,
              instopThr=1e-8, log=False, plot=True, show=False, save=True):
-    print(" * " * 50)
+    print("*" * 50)
     print(
-        f"reg = {reg}\n eta = {eta}\n outItermax = {10}\n weights = {None}\n inItermax = {100}\n outstopThr = {1e-8}\n instopThr = {1e-8}\n log = {False}\n plot = {True}\n show = {False}\n save = {True}")
-    print(" * " * 50)
+        f" reg = {reg}\n eta = {eta}\n outItermax = {10}\n weights = {None}\n inItermax = {100}\n outstopThr = {1e-8}\n instopThr = {1e-8}\n log = {False}\n plot = {True}\n show = {False}\n save = {True}")
+    print("*" * 50)
 
-    files = get_files()
+    already_computed = get_already_computed_files_name()
+
+    files = get_data_files_name()
     if plot:
         print("Initialize plot...")
         plt.figure(1, figsize=(15, 10))
         k = 1
 
     for file in files:
+        print("-"*50)
         print(f"Load file : {file}")
         title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_eta_" + str(eta) + "_outer-inner_" + str(
             outItermax) + "-" + str(inItermax)
-        data = np.load("./data/" + file)
-        data = data[:5]  # to truncate the dataset for testing
-        data = np.reshape(data, (len(data), 2500))
-        # print(data[0])
-        # data = data.reshape((-1, x_size * y_size))
-        data = data.T
-        data_pos = data - np.min(data)
-        mass = np.sum(data_pos, axis=0).max()
-        # unbalanced data
-        hs = data_pos / mass
-        # normalized data
-        mass_hs = np.sum(hs, axis=0)
-        hs_hat = hs / mass_hs
 
-        # barycenter of tlp_bi
-        bary, barys = tlp_bi(hs=hs, hs_hat=hs_hat, x_size=x_size, y_size=y_size, reg=reg, eta=eta, weights=weights,
-                             outItermax=outItermax, outstopThr=outstopThr, inItermax=inItermax,
-                             instopThr=instopThr, log=log)
-        # print(bary[0])
-        bary = np.reshape(bary, (50, 50))
-        # print(bary[0])
+        if title + ".npy" in already_computed :
+            print(title+".npy already exists. Load it instead of computing it again.")
+            bary = np.load("./results/tlp_bary/" + title + ".npy")
+        else :
+            data = np.load("./data/" + file)
+            data = data[:5]  # to truncate the dataset for testing
+            data = np.reshape(data, (len(data), 2500))
+            # print(data[0])
+            # data = data.reshape((-1, x_size * y_size))
+            data = data.T
+            data_pos = data - np.min(data)
+            mass = np.sum(data_pos, axis=0).max()
+            # unbalanced data
+            hs = data_pos / mass
+            # normalized data
+            mass_hs = np.sum(hs, axis=0)
+            hs_hat = hs / mass_hs
 
-        print("Save results as :", "./results/tlp_bary/" + title + ".npy")
-        np.save("./results/tlp_bary/" + title + ".npy", bary)
+            # barycenter of tlp_bi
+            bary, barys = tlp_bi(hs=hs, hs_hat=hs_hat, x_size=x_size, y_size=y_size, reg=reg, eta=eta, weights=weights,
+                                 outItermax=outItermax, outstopThr=outstopThr, inItermax=inItermax,
+                                 instopThr=instopThr, log=log)
+            # print(bary[0])
+            bary = np.reshape(bary, (50, 50))
+            # print(bary[0])
+
+            print("Save results as :", "./results/tlp_bary/" + title + ".npy")
+            np.save("./results/tlp_bary/" + title + ".npy", bary)
 
         if plot:
-            print(f"Add {title} \n to the plot, in position {k} of the {2} by {3} grid...")
+            print(f"Add {title} to the plot, in position {k} of the {2} by {3} grid...")
             plt.subplot(2, 3, k)
             plt.title(title[:len(title) // 2] + "\n" + title[len(title) // 2:])
             plt.imshow(bary)
