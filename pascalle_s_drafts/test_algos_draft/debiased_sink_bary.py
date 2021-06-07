@@ -45,27 +45,35 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), plot=True, save=True)
         #print(file)
         title = "bary" + file[15:-4] + "_eps_" + str(epsilon) + "_iter_" + str(max_iter)
         data = np.load("./data/" + file)
-        data = data[:1] #to truncate the dataset for testing
+        data = data[:5] #to truncate the dataset for testing
         imgs = len(data)
         #print(len(data))
-        print("./data/" + file)
+        #print("./data/" + file)
 
         #compute P and K using computeK()
         P, K = computeK(data, epsilon)     
         #run sinkhorn algo using debiased_sinkhorn()
         bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter)  
-        print(torch.min(bary))
-        #if torch.min(bary) < vmin:
-        #    vmin = torch.min(bary)
-
-        print(type(bary))
-        
-        
+        if vmin == []:
+            vmin = torch.min(bary)
+        elif vmin < torch.min(bary):
+            vmin = torch.min(bary)
+        if vmax == []:
+            vmax = torch.max(bary)
+        elif vmax > torch.max(bary):
+            vmax = torch.max(bary)
+            
+            
         np.save("./results/debiased_sink_bary/" + title + "_imgs_" + str(imgs) + ".npy", bary)
+        
+    vmin = vmin.numpy()
+    print(vmin)
+    vmax = vmax.numpy()
+    print(vmax)
 #go through every file with a different noise level, run the algo on it, save the results
 #get the vmax and vmin from the results and plot
 #should I have plot as a separate function?
-"""   
+  
     
     if plot:
         plt.subplot(2, 3, k)
@@ -79,7 +87,8 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), plot=True, save=True)
     if plot:
         plt.show()
 
-"""
+
+
 
 if __name__ == "__main__":
     debiased_sink_bary(.5, 50, save = False) #[.001, .025, .05, .075, .1, .15, .2, .3, .5, .7, .9]

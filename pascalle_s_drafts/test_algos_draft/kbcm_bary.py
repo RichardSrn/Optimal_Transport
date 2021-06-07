@@ -62,11 +62,12 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
             plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
             plt.imshow(bary)
             k += 1
-    
+
+    #if save:
+    #    plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")    
     if plot:
         plt.show()
-    #if save:
-    #    plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")
+
  
 """
 Richard can you run this piece and save the charts for me manually (or auto if you can)

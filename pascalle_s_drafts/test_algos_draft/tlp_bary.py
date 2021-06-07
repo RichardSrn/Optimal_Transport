@@ -79,11 +79,11 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
             plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
             plt.imshow(bary)
             k += 1
-    
+    #if save:
+    #    plt.savefig("./results/tlp_bary/tlp_"+str(reg)+"_reg_"+str(eta)+"_eta_"+str(data.shape[0])+"_samples.png")   
     if plot:
         plt.show()
-    #if save:
-    #    plt.savefig("./results/tlp_bary/tlp_"+str(reg)+"_reg_"+str(eta)+"_eta_"+str(data.shape[0])+"_samples.png")
+
  
 
 if __name__ == "__main__":
