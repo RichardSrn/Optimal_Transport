@@ -15,6 +15,7 @@ from os.path import isfile, join
 import matplotlib.pyplot as plt
 import numpy as np
 import ot
+import torch
 
 from computeK import computeK
 import sinkhorn_barycenters as sink
@@ -34,42 +35,55 @@ files = get_files()
 
 
 def debiased_sink_bary(epsilon = .1, max_iter = int(1000), plot=True, save=True):
-    #max_iter = int(1000)
-    #print(epsilon)
     if plot:
         plt.figure(1, figsize=(15, 10))
         k = 1
+    vmin = []
+    vmax = []
     
     for file in files:
         #print(file)
-        title = "bary" + file[15:-4] + "_eps_" + str(epsilon)
-        #print(title)
+        title = "bary" + file[15:-4] + "_eps_" + str(epsilon) + "_iter_" + str(max_iter)
         data = np.load("./data/" + file)
-        #data = data[:5] #to truncate the dataset for testing
+        data = data[:1] #to truncate the dataset for testing
+        imgs = len(data)
+        #print(len(data))
         print("./data/" + file)
 
         #compute P and K using computeK()
         P, K = computeK(data, epsilon)     
         #run sinkhorn algo using debiased_sinkhorn()
-        bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter)         
-        np.save("./results/debiased_sink_bary/" + title + ".npy", bary)
-    
-        if plot:
-            plt.subplot(2, 3, k)
-            plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
-            plt.imshow(bary)
-            k += 1
+        bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter)  
+        print(torch.min(bary))
+        #if torch.min(bary) < vmin:
+        #    vmin = torch.min(bary)
+
+        print(type(bary))
+        
+        
+        np.save("./results/debiased_sink_bary/" + title + "_imgs_" + str(imgs) + ".npy", bary)
+#go through every file with a different noise level, run the algo on it, save the results
+#get the vmax and vmin from the results and plot
+#should I have plot as a separate function?
+"""   
     
     if plot:
+        plt.subplot(2, 3, k)
+        plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
+        ##add vmin and vmax so all plots have same itensity scale
+        plt.imshow(bary, vmin=0, vmax=1)
+        k += 1
+    if save:
+        plt.savefig("./results/debiased_sink_bary/plots_debiased_sink_bary/" + title + ".png")
+        
+    if plot:
         plt.show()
-    #if save:
-    #    plt.savefig("./results/debiased_sink_bary/debiased_sink_"+str(epsilon)+"_eps_"+str(max_iter)+"_iter_"+str(data.shape[0])+"_samples.png")
 
+"""
 
 if __name__ == "__main__":
-    debiased_sink_bary(.9, 1000) #[.001, .025, .05, .075, .1, .15, .2, .3, .5, .7, .9]
+    debiased_sink_bary(.5, 50, save = False) #[.001, .025, .05, .075, .1, .15, .2, .3, .5, .7, .9]
 
 #automate this laterrr
 #max_iter = [100, 500, 750, 1000, 2500]
-#eps = [.001, .025, .05, .075, .1, .15, .2, .3, .5, .7, .9]
-    
+  

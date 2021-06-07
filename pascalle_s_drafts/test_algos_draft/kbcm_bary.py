@@ -40,7 +40,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
         k = 1
     
     for file in files:
-        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_c_" + str(c)
+        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter)
         data = np.load("./data/" + file)
         data = data[:5] #to truncate the dataset for testing
         data = np.reshape(data, (len(data), 2500))    
@@ -76,9 +76,9 @@ kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
      ^^^change reg parameter
 """
 if __name__ == "__main__":
-    reg = [.05]
+    reg = [.01]
     for r in reg:
-        kbcm_bary(reg = r, max_iter = 500)
+        kbcm_bary(reg = r, max_iter = 75)
  
  #   [.025, .05, .1]
     
