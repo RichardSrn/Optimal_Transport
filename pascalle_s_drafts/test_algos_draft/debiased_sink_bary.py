@@ -23,11 +23,19 @@ import sinkhorn_barycenters as sink
 intensity = "minmax" or "zeroone"
     Will set the plots based off of the minimum and maximum intensity values across all noise levels
     Or sets the plot's intensity to be between 0 and 1
+    In case of NAN values? Set to 0 and 1
+    
+imgs: number of images used to compute the barycenter
+
+noise_lvl: choosing to use 4 different or 6 different noise levels for barycenters and plots
 """
 
-def get_files():
+def get_files(noise_lvl=6):
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
-    onlyfiles = [file for file in onlyfiles if file[-5:] == "0.npy"]
+    if noise_lvl == 6:
+        onlyfiles = [file for file in onlyfiles if file[15:19] == "_lvl"]
+    elif noise_lvl == 4:
+        onlyfiles = [file for file in onlyfiles if file[15:19] == "_noi"]
     onlyfiles.sort()
 
     for file in onlyfiles:
@@ -36,53 +44,99 @@ def get_files():
 files = get_files()   
 
 
+#if noise_lvl == 6:
+#    if file[15:19] == "_lvl":
+#        data = np.load("./data/" + file)
+#        data = data[:imgs] #number of images to use to compute barycenter
+#elif noise_lvl == 4:
+#    if file[15:19] == "_noi":
+#        data = np.load("./data/" + file)
+#        data = data[:imgs] #number of images to use to compute barycenter
+
+#artificial_data_lvl_0.000_mean_0.000.npy  [6]
+#artificial_data_noiselvl_0.500.npy        [4]
+
 
 def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone", noise_lvl=6, imgs = 5, plot=True, save=True):
+    
+    files = get_files(noise_lvl) 
     if plot:
         plt.figure(1, figsize=(15, 10))
     vmin = []
     vmax = []
     
+    
     for file in files:
-        #print(file)
+        
         data = np.load("./data/" + file)
-        data = data[:imgs] #to truncate the dataset for testing
-        #print("./data/" + file)
+        data = data[:imgs] ##number of images to use to compute barycenter
+       
 
-        #compute P and K using computeK()
+        #Computing barycenter
         P, K = computeK(data, epsilon)     
-        #run sinkhorn algo using debiased_sinkhorn()
-        bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter)  
+        bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter) 
+        print(file)
+        print(bary)
+        #Finding max and min intensities for even plotting
+        #Finding the Min with NAN handler
         if vmin == []:
-            vmin = torch.min(bary)
-        elif vmin < torch.min(bary):
-            vmin = torch.min(bary)
-        if vmax == []:
-            vmax = torch.max(bary)
-        elif vmax > torch.max(bary):
-            vmax = torch.max(bary)
-            
+            if torch.isnan(torch.min(bary)) == True:
+                vmin = []
+            else:
+                vmin = torch.min(bary)
+                vmin = vmin.numpy()
+        ##If NAN, do nothing
+        #If min(bary) > vmin, do nothing
+        else:
+            if torch.isnan(torch.min(bary)) == False:
+                barymin = torch.min(bary)
+                barymin = barymin.numpy()
+                if  barymin < vmin:
+                    vmin= barymin    
+        if np.isnan(vmin):
+            vmin = 0
         
+        #Finding the Max with NAN handler
+
+        #print(vmax, "original")
+        if vmax == []:
+            if torch.isnan(torch.max(bary)) == True:
+                vmax = []
+            else:
+                vmax = torch.max(bary)
+                vmax = vmax.numpy()
+            #print(vmax, "new")    
+            #print(type(vmax), "type vmax")
+        ##If NAN, do nothing
+        #If max(bary) < vmax, do nothing
+            #print(vmax,"original")
+        else:
+            if torch.isnan(torch.max(bary)) == False:
+                barymax = torch.max(bary)
+                barymax = barymax.numpy()
+                if  barymax > vmax:
+                    vmax= barymax
+            #print(vmax, "new")
+            #print(type(vmax), "type vmax")       
+        if np.isnan(vmax):
+            vmax = 1
+            
+            
+       
+        #saving the dataset
         title = "bary" + file[15:-4] 
-        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity)
-        np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
- #need to put in a handler for NAN  
-    print(vmin)
-    print(vmax)     
-    if np.isnan(vmin) == 0:
-        vmin = vmin.numpy()
-    if np.isnan(vmax) == 0:
-        vmax = vmax.numpy()
+        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
+        if save:
+            np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
 
         
-#go through every file with a different noise level, run the algo on it, save the results
-#get the vmax and vmin from the results and plot
-#should I have plot as a separate function?
+
   
-  
+###Set plots to take from the grouping of 4 noise levels for the 4 
+#different title than the 6  
     if plot:
         k = 1
-        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity)
+        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if noise_lvl == 6:
             noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
             m = 3
@@ -117,7 +171,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .5, max_iter = 100, intensity = "minmax", noise_lvl=4, save=False) 
+    debiased_sink_bary(epsilon = .05, max_iter = 1000, intensity = "minmax", noise_lvl = 4) 
 
 
 
