@@ -85,20 +85,26 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
         params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity)
         if noise_lvl == 6:
             noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
-            for n in noise_lvls: 
-                ##have to iterate through the noise levels here by the title
-                #bary_lvl_0.500_mean_0.000_eps_0.5_iter_50_imgs_5_intensity_zeroone.npy
-                barys = np.load("./results/debiased_sink_bary/bary_lvl_"+n+"_mean_0.000"+params+".npy")
-                plt.subplot(2, 3, k)
-                plt.title("bary_lvl_"+n+"_mean_0.000")
-                ##add vmin and vmax so all plots have same itensity scale
-                k += 1
-                if intensity == "zeroone":
-                    plt.imshow(barys, vmin=0, vmax=1)
-                elif intensity == "minmax":
-                    plt.imshow(barys, vmin=vmin, vmax=vmax)
-                else:
-                    plt.imshow(barys)
+            m = 3
+            #artificial_data_lvl_0.200_mean_0.000.npy
+        elif noise_lvl == 4:
+            noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
+            m = 2
+            #artificial_data_noiselvl_0.500.npy
+        for n in noise_lvls: 
+            #bary_lvl_0.500_mean_0.000_eps_0.5_iter_50_imgs_5_intensity_zeroone.npy
+            barys = np.load("./results/debiased_sink_bary/bary_lvl_"+n+"_mean_0.000"+params+".npy")
+            plt.subplot(2, m, k)
+            plt.title("bary_lvl_"+n+"_mean_0.000")
+            ##added vmin and vmax so all plots have same itensity scale
+            k += 1
+            if intensity == "zeroone":
+                plt.imshow(barys, vmin=0, vmax=1)
+            elif intensity == "minmax":
+                plt.imshow(barys, vmin=vmin, vmax=vmax)
+            else:
+                plt.imshow(barys)
+        
 
     if save:
         plt.savefig("./results/debiased_sink_bary/plots_debiased_sink_bary/" + title + params + ".png")
@@ -111,7 +117,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .05, max_iter = int(1e7), intensity = "minmax") 
+    debiased_sink_bary(epsilon = .5, max_iter = 100, intensity = "minmax", noise_lvl=4, save=False) 
 
 
 
