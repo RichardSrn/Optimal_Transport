@@ -38,6 +38,8 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
     if plot:
         plt.figure(1, figsize=(15, 10))
         k = 1
+    vmin = []
+    vmax = []
     
     for file in files:
         title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter)
@@ -53,7 +55,15 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
         # barycenter of KBCM
         bary = kbcm(hs, x_size, y_size, reg, c, numItermax=max_iter)
         bary = np.reshape(bary, (50,50)) 
-
+        if vmin == []:
+            vmin = bary.min()
+        elif vmin < bary.min():
+            vmin = bary.min()
+        if vmax == []:
+            vmax = bary.max()
+        elif vmax > bary.max():
+            vmax = bary.max()
+            
 
         np.save("./results/kbcm_bary/" + title + ".npy", bary)
     
@@ -62,6 +72,9 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, pl
             plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
             plt.imshow(bary)
             k += 1
+            
+    print(vmin)
+    print(vmax)
 
     #if save:
     #    plt.savefig("./results/kbcm_bary/kbcm_"+str(reg)+"_reg_"+str(c)+"_c_"+str(data.shape[0])+"_samples.png")    
@@ -77,7 +90,7 @@ kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
      ^^^change reg parameter
 """
 if __name__ == "__main__":
-    reg = [.01]
+    reg = [.2]
     for r in reg:
         kbcm_bary(reg = r, max_iter = 75)
  
