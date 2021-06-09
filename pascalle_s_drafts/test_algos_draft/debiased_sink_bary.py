@@ -80,7 +80,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
                 barymin = torch.min(bary)
                 barymin = barymin.numpy()
                 if  barymin < vmin:
-                    vmin= barymin    
+                    vmin = barymin    
         if np.isnan(vmin):
             vmin = 0
         
@@ -98,7 +98,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
                 barymax = torch.max(bary)
                 barymax = barymax.numpy()
                 if  barymax > vmax:
-                    vmax= barymax     
+                    vmax = barymax     
         if np.isnan(vmax):
             vmax = 1
        
@@ -123,9 +123,9 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
             noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
             m = 2
         for n in noise_lvls: 
-            barys = np.load("./results/debiased_sink_bary/bary_noiselvl_"+n+params+".npy")
+            barys = np.load("./results/debiased_sink_bary/bary_noiselvl_" + n + params + ".npy")
             plt.subplot(2, m, k)
-            plt.title("bary_lvl_"+n+"_mean_0.000")
+            plt.title("bary_lvl_" + n + "_mean_0.000")
             ##added vmin and vmax so all plots have same itensity scale
             k += 1
             if intensity == "zeroone":
@@ -147,7 +147,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .05, max_iter = 1000, intensity = "zeroone", noise_lvl = 6) 
+    debiased_sink_bary(epsilon = .6, max_iter = 100, intensity = "minmax", noise_lvl = 6) 
 
 
 #takes a long time to run
