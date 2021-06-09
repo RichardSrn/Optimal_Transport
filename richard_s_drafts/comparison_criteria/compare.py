@@ -60,7 +60,7 @@ def compare(path = "./data/", save=True, save_path="./results/"):
             df = df.append(param, ignore_index=True)
 
     if save :
-        df.to_csv(os.path.join(save_path,"DataFrame_summary.csv"))
+        df.to_csv(os.path.join(save_path, "DataFrame_summary.csv"))
 
     return df
 
