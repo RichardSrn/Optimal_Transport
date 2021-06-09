@@ -77,5 +77,5 @@ def generate_data(seed=42, nb_samples = 200,
 
 
 if __name__=="__main__":
-    for i in [0,0.1,0.5,1] :
+    for i in [0,0.05,0.1,0.2,0.5,1] :
         generate_data(noise_level = i)
