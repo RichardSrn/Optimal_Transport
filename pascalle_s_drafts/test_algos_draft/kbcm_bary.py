@@ -26,6 +26,12 @@ noise_lvl: choosing to use 4 different or 6 different noise levels for barycente
 
 """
 
+#parameters
+#    reg : float
+#       Entropic regularization term 
+#    c : float
+#       Step size for gradient update    
+
 
 def get_files(noise_lvl=6):
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
@@ -39,11 +45,6 @@ def get_files(noise_lvl=6):
     for file in onlyfiles:
         yield file
   
-#parameters
-#    reg : float
-#       Entropic regularization term 
-#    c : float
-#       Step size for gradient update    
 
 
 """automate xsize ysize and take out of function"""
@@ -61,8 +62,8 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
         
         data = np.load("./data/" + file)
         data = data[:imgs] ##number of images to use to compute barycenter
-        
-        data = np.reshape(data, (len(data), 2500))    
+        #Computing barycenter
+        data = np.reshape(data, (len(data), (x_size*y_size)))    
         data = data.T
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
@@ -70,7 +71,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
         hs = data_pos / mass
         # barycenter of KBCM
         bary = kbcm(hs, x_size, y_size, reg, c, numItermax=max_iter)
-        bary = np.reshape(bary, (50,50)) 
+        bary = np.reshape(bary, (x_size,y_size)) 
         
         nanmin = np.nanmin(bary)
         nanmax = np.nanmax(bary)
@@ -83,14 +84,12 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
                 vmin = []
             else:
                 vmin = nanmin
-                #vmin = vmin.numpy()
         ##If NAN, do nothing
         ##If min(bary) > vmin, do nothing
             print(vmin)
         else:
             if np.isnan(nanmin) == False:
                 barymin = nanmin
-                #barymin = barymin.numpy()
                 if  barymin < vmin:
                     vmin = barymin 
             print(vmin)
@@ -103,13 +102,11 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
                 vmax = []
             else:
                 vmax = nanmax
-                #vmax = vmax.numpy()
         ##If NAN, do nothing
         ##If max(bary) < vmax, do nothing
         else:
             if np.isnan(nanmax) == False:
                 barymax = nanmax
-                #barymax = barymax.numpy()
                 if  barymax > vmax:
                     vmax = barymax     
         if np.isnan(vmax):
@@ -148,6 +145,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
                 plt.imshow(barys, vmin=vmin, vmax=vmax)
             else:
                 plt.imshow(barys)
+        
 
    
 
