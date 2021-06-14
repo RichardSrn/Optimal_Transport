@@ -18,8 +18,10 @@ def max_amplitude(image) :
     """
     Get the max amplitude of the image.
     """
-    
-    return np.max(image)
+    maximum = np.max(image)
+    location= np.where(image == maximum)
+
+    return (maximum,location)
 
 def pixel_above_thr(image, threshold) :
     """
@@ -49,13 +51,12 @@ def criteria(image) :
     - coordinate of above-threshold pixels --threshold = max_amplitude/2--
     - standard deviation of the above-threshold pixels.
     """
-    print(image)
-    if any(image == None):
-        return (None,None,None)
-    max_ampl = max_amplitude(image)
+    if np.isnan(image).all() :
+        return (None,None,None,None)
+    max_ampl,max_ampl_loc = max_amplitude(image)
     pixels = pixel_above_thr(image, max_ampl)
     std = sd_pixels(pixels)
-    return (max_ampl, pixels, std)
+    return (max_ampl, max_ampl_loc, pixels, std)
 
 
 if __name__ == '__main__':
