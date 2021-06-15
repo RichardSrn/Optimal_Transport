@@ -49,11 +49,12 @@ def generate_data(seed=42, nb_samples = 200,
 
     # coordinates of the center of the activated zone
     coors = []
-    for i in range(nb_samples):
+    for i in range(nb_samples//2):
         t = 2 * np.pi * rng.uniform(0, 1)
         r = np.sqrt(rng.uniform(0, 225))
         coor = [r * np.cos(t), r * np.sin(t)]
         coors.append(coor)
+        coors.append([-coor[0],-coor[1]])
     coors = np.vstack(coors)
     coors += np.array([25, 25])
     coors = coors.astype(int)
