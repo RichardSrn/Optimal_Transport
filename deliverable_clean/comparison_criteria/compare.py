@@ -262,7 +262,7 @@ def make_plot(df,
 
 
 if __name__ == "__main__":
-    collect("/home/lmint/Documents/programmation/python/Optimal_Transport/deliverable_clean/test_algos/results")
+    collect("../test_algos/results")
     compare_max_amplitude(show_plot=False)
     compare_obv_thr_pixels_std(show_plot=False)
     compare_obv_thr_pixels(show_plot=False)
