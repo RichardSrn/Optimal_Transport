@@ -12,6 +12,10 @@ import standardize
 from adjustText import adjust_text
 from math import log10, floor
 
+round_sig = lambda x, sig=2 : round(x, sig-int(floor(log10(abs(x))))-1)
+
+
+
 def get_label(df) :
     def round_sig(x, sig=2):
         return round(x, sig-int(floor(log10(abs(x))))-1)
@@ -36,6 +40,9 @@ def get_label(df) :
                     values[i] = round_sig(values[i],4)
                     if values[i] < 0.1 :
                         values[i] = "{:e}".format(values[i])
+                        values[i] = re.sub(r"(0+e)","e",values[i])
+                        values[i] = re.sub(r"(\.e)", "e", values[i])
+                        values[i] = re.sub(r"(\.0+)", "", values[i])
             except :
                 pass
             finally :
@@ -45,8 +52,26 @@ def get_label(df) :
             text.append(shorten[c]+'='+", ".join(set(values))+"")
         else :
             text.append(c+'='+", ".join(set(values))+"")
-    text ="\n".join( text )
+    # text ="\n".join( text )
     return text
+
+
+def get_title_and_text(list_text, plot_title) :
+    set_text = set(list_text[0])
+    for l in list_text[1:] :
+        set_text = set_text & set(l)
+    if len(set_text) != 0 :
+        plot_title = plot_title + " - " + "; ".join(list(set_text))
+        for s in set_text :
+            for i in range(len(list_text)) :
+                if s in list_text[i] :
+                    list_text[i].remove(s)
+
+    for i in range(len(list_text)) :
+        list_text[i] = "\n".join(list_text[i])
+
+    return (list_text,plot_title)
+
 
 def parse_key(key) :
     true_key = {    "debiased_sink_bary" : "debiased_sinkhorn",
@@ -64,6 +89,7 @@ def parse_key(key) :
     else :
         return key
 
+
 def get_files(path = "./data"):
     directories = [f for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
     directories.remove('noisefrees_control')
@@ -76,6 +102,7 @@ def get_files(path = "./data"):
         tree[d].sort()
 
     return tree
+
 
 def collect(path = "./data/", save=True, save_path="./results/"):
     tree = get_files(path)
@@ -115,7 +142,10 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
     return df
 
-def compare_max_amplitude(show_plot=True,save_plot=True,show_points_params=True):
+
+def compare_max_amplitude(show_plot=True,
+                          save_plot=True,
+                          show_points_params=True):
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
     make_plot(df = df,
               min_or_max = "max", 
@@ -125,16 +155,25 @@ def compare_max_amplitude(show_plot=True,save_plot=True,show_points_params=True)
               show_points_params=show_points_params)
 
 
-def compare_obv_thr_pixels_std(show_plot=True,save_plot=True,show_points_params=True):
+def compare_obv_thr_pixels_std(show_plot=True,
+                               save_plot=True,
+                               show_points_params=True):
     def adapted_l2(vector) :
         vector = list(vector)
         new_vector = []
         for i in range(len(vector)) :
-            x_str = vector[i].split('\n ')
-            x = []
-            x.append(float(x_str[0][2:-1]))
-            x.append(float(x_str[1][1:-2]))
-            new_vector.append(np.sqrt(x[0]**2+x[1]**2))
+            x_str = str(vector[i])
+            if x_str != "nan" :
+                x_str = re.sub(r'(\[|\])', '', x_str)
+                x_str = re.sub(r'(\s+)', ' ', x_str)
+                x_str = re.sub(r'((?:\s)+)$', '', x_str)
+                x_str = x_str.split(' ')
+                x = []
+                x.append(float(x_str[0]))
+                x.append(float(x_str[1]))
+                new_vector.append(np.sqrt(x[0]**2+x[1]**2))
+            else :
+                new_vector.append(None)
         return new_vector
 
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
@@ -147,17 +186,22 @@ def compare_obv_thr_pixels_std(show_plot=True,save_plot=True,show_points_params=
               show_points_params=show_points_params)
 
 
-def compare_obv_thr_pixels(show_plot=True,save_plot=True,show_points_params=True):
+def compare_obv_thr_pixels(show_plot=True,
+                           save_plot=True,
+                           show_points_params=True):
     def count_pixels(pixels) :
         pixels = list(pixels)
         new_pixels = []
         for i in range(len(pixels)) :
-            p = pixels[i].replace("[",'')
-            p = p.replace("]",'')
-            p = p.replace("\n",' ')
-            p = re.sub(r'\s(?:\s)+', ' ', p)
-            p = p.split((' '))
-            new_pixels.append(len(p)//2)
+            if str(pixels[i]) != "nan" :
+                p = pixels[i].replace("[",'')
+                p = p.replace("]",'')
+                p = p.replace("\n",' ')
+                p = re.sub(r'\s(?:\s)+', ' ', p)
+                p = p.split((' '))
+                new_pixels.append(len(p)//2)
+            else :
+                new_pixels.append(None)
         return new_pixels
 
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
@@ -169,7 +213,10 @@ def compare_obv_thr_pixels(show_plot=True,save_plot=True,show_points_params=True
               save_plot=save_plot, 
               show_points_params=show_points_params)
 
-def compare_barycenter_location(show_plot=True, save_plot=True, show_points_params=True):
+
+def compare_barycenter_location(show_plot=True, 
+                                save_plot=True, 
+                                show_points_params=True):
     def adapted_l2(vector) :
         vector = list(vector)
         new_vector = []
@@ -178,6 +225,7 @@ def compare_barycenter_location(show_plot=True, save_plot=True, show_points_para
             if x_str != "nan" :
                 x_str = re.sub(r'(\[|\])', '', x_str)
                 x_str = re.sub(r'[\s]+', ' ', x_str)
+                x_str = re.sub(r'((?:\s)+)$', '', x_str)
                 x_str = x_str.split(' ')
                 x = []
                 x.append(float(x_str[0])-24.5)
@@ -196,6 +244,7 @@ def compare_barycenter_location(show_plot=True, save_plot=True, show_points_para
               save_plot=save_plot, 
               show_points_params=show_points_params)
    
+
 def make_plot(df, 
               min_or_max, 
               variable, 
@@ -242,22 +291,30 @@ def make_plot(df,
         x = sub_algo_variable_df["noise_level"]
         y = sub_algo_variable_df[variable]
         label = algo
+        plot_title = algo
         plt.plot(x, y,label=label, color=colors[i], marker='D', alpha=.5)
 
         #print the parameters on the plot
         if show_points_params :
             j=0
             texts=[]
+            s_s = []
+            x_s = []
+            y_s = []
             for noise_lvl in sub_algo_variable_df["noise_level"].unique() :
                 sub_algo_noise_variable_df = pd.DataFrame(sub_algo_variable_df[sub_algo_variable_df['noise_level'] == noise_lvl])
                 text_param = get_label(sub_algo_noise_variable_df.drop(['noise_level',
                                                                         'algorithm'], axis='columns'))
-                s = text_param
-                x = noise_lvl
-                y = sub_algo_noise_variable_df[variable].iloc[0]
-                t = plt.text(x=x+0.01, 
-                             y=y, 
-                             s=text_param, 
+                s_s.append(text_param)
+                x_s.append(noise_lvl)
+                y_s.append(sub_algo_noise_variable_df[variable].iloc[0])
+                j+=1
+
+            list_text,plot_title = get_title_and_text(s_s,plot_title)
+            for k in range(j) :
+                t = plt.text(x=x_s[k]+0.01, 
+                             y=y_s[k], 
+                             s=list_text[k], 
                              color=colors[i], 
                              rotation=0)
                 t.set_bbox(dict(facecolor='white', 
@@ -265,10 +322,10 @@ def make_plot(df,
                                 edgecolor='gray',
                                 boxstyle='round'))
                 texts.append(t)
-                j+=1
         i+=1
-        adjust_text(texts)
-        plt.legend()
+        adjust_text(texts, precision=1e-3)
+        # plt.legend()
+        plt.title(plot_title, fontsize=10.0, fontweight='bold')
         plt.ylabel(variable)
 
     plt.xlabel("noise_level")
@@ -289,8 +346,7 @@ def make_plot(df,
 
 if __name__ == "__main__":
     # collect("../test_algos/results")
-    # collect("../../deliverable_clean/test_algos/results")
-    # compare_max_amplitude(show_plot=False)
-    # compare_obv_thr_pixels_std(show_plot=False)
-    # compare_obv_thr_pixels(show_plot=False)
-    compare_barycenter_location(show_plot=True)
+    compare_max_amplitude(show_plot=False)
+    compare_obv_thr_pixels_std(show_plot=False)
+    compare_obv_thr_pixels(show_plot=False)
+    compare_barycenter_location(show_plot=False)
