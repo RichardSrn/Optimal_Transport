@@ -12,33 +12,10 @@ import standardize
 from adjustText import adjust_text
 from math import log10, floor
 
-def round_sig(x, sig=2):
-    return round(x, sig-int(floor(log10(abs(x))))-1)
-
-def count_pixels(pixels) :
-    pixels = list(pixels)
-    new_pixels = []
-    for i in range(len(pixels)) :
-        p = pixels[i].replace("[",'')
-        p = p.replace("]",'')
-        p = p.replace("\n",' ')
-        p = re.sub(r'\s(?:\s)+', ' ', p)
-        p = p.split((' '))
-        new_pixels.append(len(p)//2)
-    return new_pixels
-
-def adapted_l2(vector) :
-    vector = list(vector)
-    new_vector = []
-    for i in range(len(vector)) :
-        x_str = vector[i].split('\n ')
-        x = []
-        x.append(float(x_str[0][2:-1]))
-        x.append(float(x_str[1][1:-2]))
-        new_vector.append(np.sqrt(x[0]**2+x[1]**2))
-    return new_vector
-
 def get_label(df) :
+    def round_sig(x, sig=2):
+        return round(x, sig-int(floor(log10(abs(x))))-1)
+
     df.dropna(axis=1,how="all",inplace=True)
 
     shorten = {"intensity minmax noise lvls" : "imnl",
@@ -108,7 +85,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
     df = pd.DataFrame(columns=[ "noise_level",
                                 "max_amplitude",
-                                "max_amplitude_location",
+                                "barycenter_location",
                                 "above-thld_pixels",
                                 "above-thld_pixels_std",
                                 "algorithm"])
@@ -128,7 +105,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
             max_ampl, max_ampl_loc, pixels, std = criteria(barycenter)
             param["max_amplitude"] = max_ampl
-            param["max_amplitude_location"] = max_ampl_loc
+            param["barycenter_location"] = max_ampl_loc
             param["above-thld_pixels"] = pixels
             param["above-thld_pixels_std"] = std
             df = df.append(param, ignore_index=True)
@@ -149,6 +126,17 @@ def compare_max_amplitude(show_plot=True,save_plot=True,show_points_params=True)
 
 
 def compare_obv_thr_pixels_std(show_plot=True,save_plot=True,show_points_params=True):
+    def adapted_l2(vector) :
+        vector = list(vector)
+        new_vector = []
+        for i in range(len(vector)) :
+            x_str = vector[i].split('\n ')
+            x = []
+            x.append(float(x_str[0][2:-1]))
+            x.append(float(x_str[1][1:-2]))
+            new_vector.append(np.sqrt(x[0]**2+x[1]**2))
+        return new_vector
+
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
     df["above-thld_pixels_std"] = adapted_l2(df["above-thld_pixels_std"])
     make_plot(df = df,
@@ -160,6 +148,18 @@ def compare_obv_thr_pixels_std(show_plot=True,save_plot=True,show_points_params=
 
 
 def compare_obv_thr_pixels(show_plot=True,save_plot=True,show_points_params=True):
+    def count_pixels(pixels) :
+        pixels = list(pixels)
+        new_pixels = []
+        for i in range(len(pixels)) :
+            p = pixels[i].replace("[",'')
+            p = p.replace("]",'')
+            p = p.replace("\n",' ')
+            p = re.sub(r'\s(?:\s)+', ' ', p)
+            p = p.split((' '))
+            new_pixels.append(len(p)//2)
+        return new_pixels
+
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
     df["above-thld_pixels"] = count_pixels(df["above-thld_pixels"])
     make_plot(df=df,
@@ -169,6 +169,32 @@ def compare_obv_thr_pixels(show_plot=True,save_plot=True,show_points_params=True
               save_plot=save_plot, 
               show_points_params=show_points_params)
 
+def compare_barycenter_location(show_plot=True, save_plot=True, show_points_params=True):
+    def adapted_l2(vector) :
+        vector = list(vector)
+        new_vector = []
+        for i in range(len(vector)) :
+            x_str = str(vector[i])
+            if x_str != "nan" :
+                x_str = re.sub(r'(\[|\])', '', x_str)
+                x_str = re.sub(r'[\s]+', ' ', x_str)
+                x_str = x_str.split(' ')
+                x = []
+                x.append(float(x_str[0])-24.5)
+                x.append(float(x_str[1])-24.5)
+                new_vector.append(np.sqrt(x[0]**2+x[1]**2))
+            else :
+                new_vector.append(None)
+        return new_vector
+
+    df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
+    df["barycenter_location"] = adapted_l2(df["barycenter_location"]) #/!\ here we have the true average equal to (24.5,24.5) and not (25,25) due to the rounding as integer. See generate_data_noise_grading.py line 60.
+    make_plot(df=df,
+              min_or_max="min",
+              variable="barycenter_location",
+              show_plot=show_plot, 
+              save_plot=save_plot, 
+              show_points_params=show_points_params)
    
 def make_plot(df, 
               min_or_max, 
@@ -183,7 +209,7 @@ def make_plot(df,
                                    "algorithm", 
                                    variable])
 
-    to_be_droped = list({"max_amplitude_location", 
+    to_be_droped = list({"barycenter_location", 
                          "above-thld_pixels", 
                          "above-thld_pixels_std", 
                          "max_amplitude"} - {variable})
@@ -206,7 +232,7 @@ def make_plot(df,
 
     nb_algo = len(sub_df["algorithm"].unique())
 
-    plt.figure(1,figsize=(15,1+2.5*nb_algo))
+    plt.figure(1,figsize=(15,1+2.7*nb_algo))
     colors = ["red", "green", "blue", "magenta", "orange", "cyan"]
     i=0
     for algo in sub_df["algorithm"].unique() :
@@ -262,7 +288,9 @@ def make_plot(df,
 
 
 if __name__ == "__main__":
-    collect("../test_algos/results")
-    compare_max_amplitude(show_plot=False)
-    compare_obv_thr_pixels_std(show_plot=False)
-    compare_obv_thr_pixels(show_plot=False)
+    # collect("../test_algos/results")
+    # collect("../../deliverable_clean/test_algos/results")
+    # compare_max_amplitude(show_plot=False)
+    # compare_obv_thr_pixels_std(show_plot=False)
+    # compare_obv_thr_pixels(show_plot=False)
+    compare_barycenter_location(show_plot=True)
