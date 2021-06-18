@@ -12,12 +12,15 @@ import standardize
 from adjustText import adjust_text
 from math import log10, floor
 
-round_sig = lambda x, sig=2 : round(x, sig-int(floor(log10(abs(x))))-1)
-
-
-
 def get_label(df) :
+    """
+    Get the description of each point based on the data frame.
+    If multiple parameters give the same output, the parameter p is denoted as :
+        p = a,b,c
+    a,b,c being the possible values of the parameter.
+    """
     def round_sig(x, sig=2):
+        """Round x to a certain amount of significant digits."""
         return round(x, sig-int(floor(log10(abs(x))))-1)
 
     df.dropna(axis=1,how="all",inplace=True)
@@ -57,6 +60,10 @@ def get_label(df) :
 
 
 def get_title_and_text(list_text, plot_title) :
+    """
+    If a parameter's value is the same for every point, add it to the title.
+    This allows to save some space on the plot.
+    """
     set_text = set(list_text[0])
     for l in list_text[1:] :
         set_text = set_text & set(l)
@@ -74,6 +81,9 @@ def get_title_and_text(list_text, plot_title) :
 
 
 def parse_key(key) :
+    """
+    Change the dictionary's keys to shorter or more descriptive keys.
+    """
     true_key = {    "debiased_sink_bary" : "debiased_sinkhorn",
                     "entropic_reg_bary"  : "entropic_regularized",
                     "kbcm_bary"          : "kbcm",
@@ -91,6 +101,9 @@ def parse_key(key) :
 
 
 def get_files(path = "./data"):
+    """
+    Get the barycenters files.
+    """
     directories = [f for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
     directories.remove('noisefrees_control')
 
@@ -105,6 +118,10 @@ def get_files(path = "./data"):
 
 
 def collect(path = "./data/", save=True, save_path="./results/"):
+    """
+    Collect the data from the barycenter's files.
+    Then summarize everything in a DataFrame and save it (if save==True) as a file.
+    """
     tree = get_files(path)
     data = {d : np.array([np.load(os.path.join(path,d,file)) for file in tree[d]]) for d in tree.keys()}
     
@@ -112,7 +129,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
     df = pd.DataFrame(columns=[ "noise_level",
                                 "max_amplitude",
-                                "barycenter_location",
+                                "barycenter_dist",
                                 "above-thld_pixels",
                                 "above-thld_pixels_std",
                                 "algorithm"])
@@ -130,9 +147,9 @@ def collect(path = "./data/", save=True, save_path="./results/"):
                 if key not in ["mean"] :
                     param[parse_key(key)] = float(value[0])
 
-            max_ampl, max_ampl_loc, pixels, std = criteria(barycenter)
+            max_ampl, barycenter_loc, pixels, std = criteria(barycenter)
             param["max_amplitude"] = max_ampl
-            param["barycenter_location"] = max_ampl_loc
+            param["barycenter_dist"] = barycenter_loc
             param["above-thld_pixels"] = pixels
             param["above-thld_pixels_std"] = std
             df = df.append(param, ignore_index=True)
@@ -146,6 +163,9 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 def compare_max_amplitude(show_plot=True,
                           save_plot=True,
                           show_points_params=True):
+    """
+    Compare the max amplitude of the barycenter's for each algorithms.
+    """
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
     make_plot(df = df,
               min_or_max = "max", 
@@ -158,6 +178,11 @@ def compare_max_amplitude(show_plot=True,
 def compare_obv_thr_pixels_std(show_plot=True,
                                save_plot=True,
                                show_points_params=True):
+    """
+    Compare the standard deviation of the pixels above threshold (threshold = 1/2 * max_amplitude).
+    Get the minimum std for each algorithm.
+    The smallest activation zone is better as we want a sharp barycenter.
+    """
     def adapted_l2(vector) :
         vector = list(vector)
         new_vector = []
@@ -189,6 +214,10 @@ def compare_obv_thr_pixels_std(show_plot=True,
 def compare_obv_thr_pixels(show_plot=True,
                            save_plot=True,
                            show_points_params=True):
+    """
+    Compare the number of pixels above threshold (threshold = 1/2 * max_amplitude).
+    The smallest number of pixels above threshold is best as we want a sharp barycenter.
+    """
     def count_pixels(pixels) :
         pixels = list(pixels)
         new_pixels = []
@@ -214,9 +243,16 @@ def compare_obv_thr_pixels(show_plot=True,
               show_points_params=show_points_params)
 
 
-def compare_barycenter_location(show_plot=True, 
+def compare_barycenter_dist(show_plot=True, 
                                 save_plot=True, 
                                 show_points_params=True):
+    """
+    Compare the barycenter's distance to the image's center.
+    We generate the data so that the barycenters are determined to be in the center of the image (24.5,24.5)
+    as long as we compute it on the n'th first images, n even.
+    We then compare the smallest l2 norm between the barycenter's center and the image's center.
+    The barycenter's center is computed as the weighted average of all the above threshold pixels.
+    """
     def adapted_l2(vector) :
         vector = list(vector)
         new_vector = []
@@ -236,10 +272,10 @@ def compare_barycenter_location(show_plot=True,
         return new_vector
 
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
-    df["barycenter_location"] = adapted_l2(df["barycenter_location"]) #/!\ here we have the true average equal to (24.5,24.5) and not (25,25) due to the rounding as integer. See generate_data_noise_grading.py line 60.
+    df["barycenter_dist"] = adapted_l2(df["barycenter_dist"]) #/!\ here we have the true average equal to (24.5,24.5) and not (25,25) due to the rounding as integer. See generate_data_noise_grading.py line 60.
     make_plot(df=df,
               min_or_max="min",
-              variable="barycenter_location",
+              variable="barycenter_dist",
               show_plot=show_plot, 
               save_plot=save_plot, 
               show_points_params=show_points_params)
@@ -251,6 +287,10 @@ def make_plot(df,
               show_plot=True, 
               save_plot=True, 
               show_points_params=True):
+    """
+    Make the plot for any comparison.
+    If show_points_params==True, show the parameters of the algorithms for a each point.
+    """
 
     df = df[df['noise_level'] != 0.05]
 
@@ -258,7 +298,7 @@ def make_plot(df,
                                    "algorithm", 
                                    variable])
 
-    to_be_droped = list({"barycenter_location", 
+    to_be_droped = list({"barycenter_dist", 
                          "above-thld_pixels", 
                          "above-thld_pixels_std", 
                          "max_amplitude"} - {variable})
@@ -281,7 +321,7 @@ def make_plot(df,
 
     nb_algo = len(sub_df["algorithm"].unique())
 
-    plt.figure(1,figsize=(15,1+2.7*nb_algo))
+    plt.figure(1,figsize=(15,1+2.9*nb_algo))
     colors = ["red", "green", "blue", "magenta", "orange", "cyan"]
     i=0
     for algo in sub_df["algorithm"].unique() :
@@ -342,11 +382,18 @@ def make_plot(df,
         plt.show()
     plt.close()
 
-
-
-if __name__ == "__main__":
-    # collect("../test_algos/results")
+def compare_all(re_collect=True):
+    """
+    Run all the comparisons.
+    """
+    if re_collect:
+        collect("../test_algos/results")
     compare_max_amplitude(show_plot=False)
     compare_obv_thr_pixels_std(show_plot=False)
     compare_obv_thr_pixels(show_plot=False)
-    compare_barycenter_location(show_plot=False)
+    compare_barycenter_dist(show_plot=False)
+
+
+
+if __name__ == "__main__":
+    compare_all()

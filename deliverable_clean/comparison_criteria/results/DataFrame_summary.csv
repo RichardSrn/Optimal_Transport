@@ -1,4 +1,4 @@
-noise_level,max_amplitude,barycenter_location,above-thld_pixels,above-thld_pixels_std,algorithm,eta,inner,reg,intensity minmax noise lvls,samples,intensity zeroone noise lvls,iters,intensity maxmin noise lvls,epsilon,iter
+noise_level,max_amplitude,barycenter_dist,above-thld_pixels,above-thld_pixels_std,algorithm,eta,inner,reg,intensity minmax noise lvls,samples,intensity zeroone noise lvls,iters,intensity maxmin noise lvls,epsilon,iter
 0.0,0.016342298070157784,[22.03645816 27.87461572],"[[20 20 20 20 21 21 21 21 21 21 21 22 22 22 22 22 22 22 23 23 23 23 23 23
   23 24 24 24 24 24]
  [26 27 28 29 25 26 27 28 29 30 31 25 26 27 28 29 30 31 25 26 27 28 29 30
