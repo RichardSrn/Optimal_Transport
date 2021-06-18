@@ -8,11 +8,12 @@
 import os
 from os import listdir
 from os.path import isfile, join
-#os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
+os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from sklearn import preprocessing
 
 from computeK import computeK
 import sinkhorn_barycenters as sink
@@ -58,11 +59,23 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
     
     for file in files:    
         data = np.load("./data/" + file)
-        data = data[:imgs] ##number of images to use to compute barycenter
-       
+        data = abs((data[:imgs])) ##number of images to use to compute barycenter
+        data_pos = data - np.min(data)
+        mass = np.sum(data_pos, axis=0).max()
+        # unbalanced data
+        hs = data_pos / mass
+        
+
+        # normalized data
+        #mass_hs = np.sum(hs, axis=0)
+        #hs_hat = hs / mass_hs
+
+        ## unbalanced data
+        #data_norm = data_pos / mass
+        #norm_data = preprocessing.normalize([[data]])
 
         #Computing barycenter
-        P, K = computeK(data, epsilon)     
+        P, K = computeK(hs, epsilon)     
         bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter) 
 
         #Finding max and min intensities for consistent plotting
@@ -101,13 +114,13 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
                     vmax = barymax     
         if np.isnan(vmax):
             vmax = 1
-       
+        print(vmax)
         #saving the dataset
         title = "bary" + file[15:-4] 
         params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if save:
             np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
-
+        print(vmax)
         
 
   
@@ -117,7 +130,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
         k = 1
         params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
+            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
             m = 3
         elif noise_lvl == 4:
             noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
@@ -147,7 +160,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .6, max_iter = 100, intensity = "minmax", noise_lvl = 6) 
+    debiased_sink_bary(epsilon = .5, max_iter = 500, intensity = "minmax", noise_lvl = 6) 
 
 
 #takes a long time to run

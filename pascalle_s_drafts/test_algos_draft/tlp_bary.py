@@ -59,7 +59,7 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
     for file in files:
         
         data = np.load("./data/" + file)
-        data = data[:imgs] ##number of images to use to compute barycenter
+        data = abs(data[:imgs]) ##number of images to use to compute barycenter
         
         data = np.reshape(data,(len(data), (x_size*y_size)))     
         #data = data.reshape((-1, x_size * y_size))
@@ -139,7 +139,7 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
         k = 1
         params = "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
+            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
             m = 3
         elif noise_lvl == 4:
             noise_lvls = ["0.000", "0.100", "0.500", "1.000"]

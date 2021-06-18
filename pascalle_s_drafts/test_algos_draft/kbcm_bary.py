@@ -61,7 +61,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
     for file in files:
         
         data = np.load("./data/" + file)
-        data = data[:imgs] ##number of images to use to compute barycenter
+        data = abs(data[:imgs]) ##number of images to use to compute barycenter
         print(data[0])
         #Computing barycenter
         data = np.reshape(data, (len(data), (x_size*y_size)))    
@@ -129,7 +129,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
         k = 1
         params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
+            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
             m = 3
         elif noise_lvl == 4:
             noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
@@ -163,9 +163,9 @@ kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
      ^^^change reg parameter
 """
 if __name__ == "__main__":
-    reg = [.075]
+    reg = [.25]
     for r in reg:
-        kbcm_bary(reg = r, c = -.7, max_iter = 50, save=True, intensity = "maxmin")
+        kbcm_bary(reg = r, c = -.7, max_iter = 100, save=True, intensity = "maxmin")
  
  #   [.025, .05, .1]
     

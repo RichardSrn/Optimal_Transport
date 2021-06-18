@@ -33,21 +33,39 @@ os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transp
 import matplotlib.pyplot as plt
 import numpy as np
 import ot
+from os import listdir
+from os.path import isfile, join
 
 
 
 
 
-data = np.load("results/tlp_bary/bary_lvl_0.050_mean_0.000_reg_0.1_eta_0.1_outer-inner_10-100.npy", allow_pickle=True)
-data = data[:3] #to truncate the dataset for testing
-print(data.shape)
-print(data[0].shape)
+#data = np.load("results/tlp_bary/bary_lvl_0.050_mean_0.000_reg_0.1_eta_0.1_outer-inner_10-100.npy", allow_pickle=True)
+#data = data[:3] #to truncate the dataset for testing
+#print(data.shape)
+#print(data[0].shape)
 #data = np.reshape(data, (len(data), 2500))
 #print(data.shape)
 #print(data[0].shape)
-print(data[0])
+#print(data[0])
 
 
+
+def get_files(noise_lvl=6):
+    onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
+    if noise_lvl == 4:
+        onlyfiles = [file for file in onlyfiles if file[-9:] in ["0.000.npy", "0.100.npy", "0.500.npy", "1.000.npy"]]
+    elif noise_lvl == 6:
+        onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
+       
+    onlyfiles.sort()
+    
+    for file in onlyfiles:
+        yield file
+        
+        
+files = get_files()
+        
         
 #data = data.reshape((-1, x_size * y_size))        
         

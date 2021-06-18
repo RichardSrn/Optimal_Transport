@@ -62,12 +62,20 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
         data = abs((data[:imgs])) ##number of images to use to compute barycenter
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
+        # unbalanced data
+        hs = data_pos / mass
+        
+
+        # normalized data
+        #mass_hs = np.sum(hs, axis=0)
+        #hs_hat = hs / mass_hs
+
         ## unbalanced data
-        data_norm = data_pos / mass
+        #data_norm = data_pos / mass
         #norm_data = preprocessing.normalize([[data]])
 
         #Computing barycenter
-        P, K = computeK(data_norm, epsilon)     
+        P, K = computeK(hs, epsilon)     
         bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter) 
 
         #Finding max and min intensities for consistent plotting
@@ -122,7 +130,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
         k = 1
         params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
         if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.050", "0.100", "0.200", "0.500", "1.000"]
+            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
             m = 3
         elif noise_lvl == 4:
             noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
@@ -152,7 +160,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .1, max_iter = 1000, intensity = "minmax", noise_lvl = 6) 
+    debiased_sink_bary(epsilon = .5, max_iter = 500, intensity = "minmax", noise_lvl = 6) 
 
 
 #takes a long time to run
