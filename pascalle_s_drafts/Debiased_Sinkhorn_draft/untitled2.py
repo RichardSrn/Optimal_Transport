@@ -64,7 +64,48 @@ def get_files(noise_lvl=6):
         yield file
         
         
-files = get_files()
+files = get_files(6)
+
+data=[]
+for file in files:  
+    data.append(np.load("./data/" + file))
+    
+print(len(data))
+
+print(data[0])
+
+data0=abs(data[0])
+
+print(data0.min())
+print(data0.max())
+print(data0.shape)
+
+
+data0 = data0.T
+print(data0)
+print(data0.shape)
+data_pos = data0 - np.min(data0)
+mass = np.sum(data_pos, axis=0).max()
+# unbalanced data
+hs = data_pos / mass
+
+print(hs, "hs")
+print(hs.shape)
+print(hs.min())
+print(hs.max())
+mass_hs = np.sum(data0, axis=0)
+hs_hat = data0 / mass_hs
+print(hs_hat, "hs_hat")
+print(hs_hat.shape)
+print(hs_hat.min())
+print(hs_hat.max())
+        
+plt.imshow(data0)
+plt.show()
+plt.hist(hs)
+plt.show()
+plt.hist(hs_hat)
+plt.show()
         
         
 #data = data.reshape((-1, x_size * y_size))        
