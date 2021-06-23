@@ -33,13 +33,9 @@ noise_lvl: choosing to use 4 different or 6 different noise levels for barycente
 
 
 
-def get_files(noise_lvl=6):
+def get_files():
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
-    if noise_lvl == 4:
-        onlyfiles = [file for file in onlyfiles if file[-9:] in ["0.000.npy", "0.100.npy", "0.500.npy", "1.000.npy"]]
-    elif noise_lvl == 6:
-        onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
-       
+    onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]       
     onlyfiles.sort()
     
     for file in onlyfiles:
@@ -47,9 +43,9 @@ def get_files(noise_lvl=6):
         
 
 
-def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone", noise_lvl=6, imgs = 5, plot=True, save=True):
+def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone", plot=True, save=True):
     
-    files = get_files(noise_lvl) 
+    files = get_files() 
     
     if plot:
         plt.figure(1, figsize=(15, 10))
@@ -59,7 +55,7 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
     
     for file in files:    
         data = np.load("./data/" + file)
-        data = abs((data[:imgs])) ##number of images to use to compute barycenter
+        data = abs((data[:])) ##number of images to use to compute barycenter
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
         # unbalanced data
@@ -115,24 +111,19 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
         #print(vmax)
         #saving the dataset
         title = "bary" + file[15:-4] 
-        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
+        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_intensity_" + str(intensity) 
         if save:
             np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
         #print(vmax)
         
 
-  
-##Plotting set up for either 4 or 6 groups of noise levels
 #Choose the intensity scale on the plot to be eith 0/1 or min/max 
     if plot:
         k = 1
-        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
-        if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
-            m = 3
-        elif noise_lvl == 4:
-            noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
-            m = 2
+        params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_intensity_" + str(intensity)
+        #if noise_lvl == 6:
+        noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
+        m = 3
         for n in noise_lvls: 
             barys = np.load("./results/debiased_sink_bary/bary_noiselvl_" + n + params + ".npy")
             plt.subplot(2, m, k)
@@ -158,9 +149,22 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
 if __name__ == "__main__":
     #iters = [100, 750, 2000, 10000, 1e8]
     #for i in iters:
-    debiased_sink_bary(epsilon = .3, max_iter = 1000, intensity = "minmax", noise_lvl = 6) 
+    debiased_sink_bary(epsilon = .3, max_iter = 100, intensity = "minmax") 
+
+"""Notes for Richard
+Debiased:
+#epsilon = .001 max_iter = int(1e6)
+#epsilon = .005 max_iter = int(1e6)
+#epsilon = .01, max_iter = int(1e6), int(1e8) (only works for greater than 1e5)
+#epsilon = .05, max_iter = int(1e7) (anything less than 1e5 doesn't work)
+#epsilon = .2   max_iter = [2500, 3000, 4000]
+#eps = .5 and iters = [500, 750, 1000]
+#eps = .7 and iters = [100, 750, 1000]   
+"""
 
 
+
+#Notes for me to remember
 #takes a long time to run
 #epsilon = .0001, max_iter = int(1e6)
 #epsilon = .05, max_iter = int(1e7)
