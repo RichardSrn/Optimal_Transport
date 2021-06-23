@@ -39,6 +39,8 @@ nanmax = np.nanmax(data)
    
  # Use cv2.minMaxLoc to find the brightest and darkest points in the image
 (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(data[0])
+print(minVal)
+print(maxVal)
 print(maxLoc)
  # Draw the result in the image
 circle = cv2.circle(data[0], maxLoc, 5, (0, 0, 0), 1)
