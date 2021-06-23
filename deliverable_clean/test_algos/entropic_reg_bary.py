@@ -16,7 +16,7 @@ def get_files():
         yield file
 
 
-def entropic_reg_bary(reg = 0.04, sample = 5, plot=True, save=True, show=False):
+def entropic_reg_bary(reg = 0.04, sample = 200, plot=True, save=True, show=False):
     files = get_files()
 
     if sample > 100 :
@@ -29,7 +29,7 @@ def entropic_reg_bary(reg = 0.04, sample = 5, plot=True, save=True, show=False):
     for file in files:
         title = "bary" + file[15:-4] + "_reg_" + str(reg)
         data = np.load("./data/" + file)[:sample]
-        bary = ot.bregman.convolutional_barycenter2d(data, reg=0.04)
+        bary = ot.bregman.convolutional_barycenter2d(data, reg=reg)
         np.save("./results/entropic_reg_bary/" + title + ".npy", bary)
 
         if plot:
