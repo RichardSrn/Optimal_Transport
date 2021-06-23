@@ -25,8 +25,7 @@ def get_label(df) :
 
     df.dropna(axis=1,how="all",inplace=True)
 
-    shorten = {"intensity minmax noise lvls" : "imnl",
-               "ababove-thld_pixels"         : "pixels",
+    shorten = {"ababove-thld_pixels"         : "pixels",
                "above-thld_pixels_std"       : "std"}
 
     text = []
@@ -105,7 +104,8 @@ def get_files(path = "./data"):
     Get the barycenters files.
     """
     directories = [f for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
-    directories.remove('noisefrees_control')
+    if "noisefrees_control" in directories :
+        directories.remove('noisefrees_control')
 
     tree = {d : [] for d in directories}
 
@@ -139,13 +139,25 @@ def collect(path = "./data/", save=True, save_path="./results/"):
             param = dict({"algorithm" : parse_key(d)})
             
             name = file_name[:-4]
-            groups = re.findall(r"([a-zA-Z](?:[a-zA-Z]|_)+_[+-]?\d+(?:\.\d+)?)",name)
+
+            name = re.sub(r"_noise_lvls_\d", "", name)
+            name = re.sub(r"bary_", "", name)
+
+            groups = re.findall(r"((?:[a-zA-Z](?:[a-zA-Z]|_|-)+_(?:[+-]?\d+(?:\.\d+)?)+|(?:intensity_(?:minmax|zeroone))))",name)
 
             for g in groups:
-                key = ' '.join(re.findall(r"([a-zA-Z]+)",g))
-                value = re.findall(r"([+-]?\d+(?:\.\d+)?)",g)
+                key = ' '.join(re.findall(r"((?:[a-zA-Z]+(?:_|-))+)", g))
+                value = re.sub(key, '', g)
+                key = re.sub(r"((?:_)$)", "", key)
+
                 if key not in ["mean"] :
-                    param[parse_key(key)] = float(value[0])
+                    try :
+                        if int(float(value)) == float(value) :
+                            param[parse_key(key)] = int(float(value))
+                        else :
+                            param[parse_key(key)] = float(value)
+                    except ValueError:
+                        param[parse_key(key)] = value
 
             max_ampl, barycenter_loc, pixels, std = criteria(barycenter)
             param["max_amplitude"] = max_ampl
@@ -244,8 +256,8 @@ def compare_obv_thr_pixels(show_plot=True,
 
 
 def compare_barycenter_dist(show_plot=True, 
-                                save_plot=True, 
-                                show_points_params=True):
+                            save_plot=True, 
+                            show_points_params=True):
     """
     Compare the barycenter's distance to the image's center.
     We generate the data so that the barycenters are determined to be in the center of the image (24.5,24.5)
