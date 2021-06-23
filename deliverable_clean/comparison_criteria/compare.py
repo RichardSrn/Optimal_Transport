@@ -381,10 +381,13 @@ def make_plot(df,
         i+=1
         adjust_text(texts, precision=1e-3)
         # plt.legend()
+        plt.xlim(left = df["noise_level"].unique().min(), right = df["noise_level"].unique().max())
         plt.title(plot_title, fontsize=10.0, fontweight='bold')
         plt.ylabel(variable)
 
+
     plt.xlabel("noise_level")
+
 
     title = "Compare {} {}".format("maximum" if min_or_max == 'max' else "minimum",variable,)
 
