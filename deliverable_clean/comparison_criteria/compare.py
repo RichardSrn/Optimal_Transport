@@ -12,6 +12,7 @@ import standardize
 from adjustText import adjust_text
 from math import log10, floor
 
+
 def get_label(df) :
     """
     Get the description of each point based on the data frame.
@@ -306,18 +307,20 @@ def make_plot(df,
 
     df = df[df['noise_level'] != 0.05]
 
-    sub_df = pd.DataFrame(columns=["noise_level",
-                                   "algorithm", 
-                                   variable])
-
     to_be_droped = list({"barycenter_dist", 
                          "above-thld_pixels", 
                          "above-thld_pixels_std", 
                          "max_amplitude"} - {variable})
 
-    for noise_lvl in df["noise_level"].unique() :
-        sub_noise_df = df[df["noise_level"] == noise_lvl]
+    df = df.drop(to_be_droped, axis=1)
 
+    sub_df = pd.DataFrame(columns=["noise_level",
+                                   "algorithm", 
+                                   variable])
+
+
+    for noise_lvl in df["noise_level"].unique() :
+        sub_noise_df = df[df["noise_level"] == noise_lvl]        
         for algo in sub_noise_df["algorithm"].unique() :
             sub_algo_noise_df = sub_noise_df[sub_noise_df["algorithm"] == algo]
 
@@ -326,16 +329,17 @@ def make_plot(df,
             elif min_or_max == "max" :
                 maxminimum = sub_algo_noise_df.max()[variable]
 
-            sub_df = sub_df.append(df.loc[df[variable] == maxminimum].drop(to_be_droped, axis=1))
+            sub_df = sub_df.append(sub_algo_noise_df.loc[sub_algo_noise_df[variable] == maxminimum])
 
     sub_df.drop_duplicates(inplace=True)
-    sub_df.sort_values(by=["noise_level"],inplace=True)
+    sub_df.sort_values(by=["noise_level"], inplace=True)
 
     nb_algo = len(sub_df["algorithm"].unique())
 
     plt.figure(1,figsize=(15,1+2.9*nb_algo))
     colors = ["red", "green", "blue", "magenta", "orange", "cyan"]
     i=0
+
     for algo in sub_df["algorithm"].unique() :
         plt.subplot(nb_algo,1,i+1)
         sub_algo_variable_df = pd.DataFrame(sub_df[sub_df['algorithm'] == algo])
@@ -394,16 +398,26 @@ def make_plot(df,
         plt.show()
     plt.close()
 
-def compare_all(re_collect=True):
+
+def compare_all(re_collect=True,
+                show_plot=False,
+                max_ampl=True, 
+                obv_thl_pix_std=True, 
+                obv_thl_pix=True, 
+                bary_dist=True):
     """
     Run all the comparisons.
     """
     if re_collect:
         collect("../test_algos/results")
-    compare_max_amplitude(show_plot=False)
-    compare_obv_thr_pixels_std(show_plot=False)
-    compare_obv_thr_pixels(show_plot=False)
-    compare_barycenter_dist(show_plot=False)
+    if max_ampl :
+        compare_max_amplitude(show_plot=show_plot)
+    if obv_thl_pix_std :
+        compare_obv_thr_pixels_std(show_plot=show_plot)
+    if obv_thl_pix :
+        compare_obv_thr_pixels(show_plot=show_plot)
+    if bary_dist :
+        compare_barycenter_dist(show_plot=show_plot)
 
 
 
