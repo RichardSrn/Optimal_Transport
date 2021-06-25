@@ -1,14 +1,56 @@
 #! /usr/bin/env python3
 
-from debiased_sink_bary import debiased_sink_bary
-from kbcm_bary import kbcm_bary
-from entropic_reg_bary import entropic_reg_bary
-from tlp_bary import tlp_bary
+# from debiased_sink_bary import debiased_sink_bary
+# from kbcm_bary import kbcm_bary
+# from entropic_reg_bary import entropic_reg_bary
+# from tlp_bary import tlp_bary
 from multiprocessing import Process, Queue
 import sys
+from os import listdir
+from os.path import join,isfile
+
+def debiased_sink_bary(**kwars):
+    print("debiased_sink_bary")
+    for k,v in kwars.items():
+        print(k,":",v)
+def kbcm_bary(**kwars):
+    print("kbcm_bary")
+    for k,v in kwars.items():
+        print(k,":",v)
+def entropic_reg_bary(**kwars):
+    print("entropic_reg_bary")
+    for k,v in kwars.items():
+        print(k,":",v)
+def tlp_bary(**kwars):
+    print("tlp_bary")
+    for k,v in kwars.items():
+        print(k,":",v)
 
 
 Q = Queue()
+
+def get_files(path = "./results"):
+    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+    onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]       
+    onlyfiles.sort()
+    
+    return onlyfiles
+
+def check_in_files(files, **parameters) :
+    param = []
+    for k,v in parameters.items():
+        param.append(str(k)+'_'+str(v))
+
+    print(param)
+
+    for file in files :
+        if all( p in file for p in param ) :
+            print(f"{file} already exists.")
+            return True
+
+    return False
+
+
 
 def run_dsb(epsilon, max_iter) :
     logs=[]
@@ -75,6 +117,10 @@ def run_tlp(reg, eta, intensity):
 
 
 def main():
+    dbs_files = get_files("./results/debiased_sink_bary")
+    entr_files = get_files("./results/entropic_reg_bary")
+    kbcm_files = get_files("./results/kbcm_bary")
+    tlp_files = get_files("./results/tlp_bary")
 
     ############
     # debiased #
@@ -82,8 +128,8 @@ def main():
     processes = []
     Q.put("\n\n\n\nRunning DSB"+"\n")
 
-    params = [(.001,    int(1e6) ),
-              (.005,    int(1e6) ),
+    params = [#(.001,    int(1e6) ),
+              #(.005,    int(1e6) ),
               (.01,     int(1e6) ),
               (.01,     int(1e8) ),
               (.05,     int(1e7) ),
@@ -98,8 +144,9 @@ def main():
               (.7,      1000     )]
 
     for epsilon,max_iter in params :
-        processes.append( Process(target=run_dsb, args=(epsilon, max_iter,)) )
-        processes[-1].start()
+        if not check_in_files(dbs_files,eps = epsilon, iter = max_iter) :
+            processes.append( Process(target=run_dsb, args=(epsilon, max_iter,)) )
+            processes[-1].start()
 
     for proc in processes :
         proc.join()
@@ -117,8 +164,9 @@ def main():
     processes = []
     Q.put("\n\n\n\nRunning ERB"+"\n")
     for reg in [0.075, 0.4, 1, 4] :
-        processes.append( Process(target=run_entropic, args=(reg,)) )
-        processes[-1].start()
+        if not check_in_files(entr_files, reg = reg) :
+            processes.append( Process(target=run_entropic, args=(reg,)) )
+            processes[-1].start()
     
     for proc in processes :
         proc.join()
@@ -140,9 +188,10 @@ def main():
         for max_iter in [100,500] :
             for c in [-.5] :
                 for intensity in ["minmax"] :
-                    processes.append( Process(target=run_kbcm, args=(reg, max_iter,c,intensity)) )
-                    processes[-1].start()
-    
+                    if not check_in_files(kbcm_files, reg = reg, iters = max_iter) :
+                        processes.append( Process(target=run_kbcm, args=(reg, max_iter,c,intensity)) )
+                        processes[-1].start()
+        
     for proc in processes :
         proc.join()
     Q.put("\n\n\n\n"+"-"*50+"\n")
@@ -150,7 +199,6 @@ def main():
     with open("./logs.txt", "a") as file :
         while not Q.empty() :
             file.write(Q.get())
-
 
 
     #######
@@ -161,9 +209,10 @@ def main():
     for reg in [.001, .01, .05, .1, .5, .9] :
         for eta in  [.001, .1, .05, .7] :
             for intensity in ["minmax", "zeroone"] :
-                processes.append( Process(target=run_tlp, args=(reg, eta, intensity,)) )
-                processes[-1].start()
-    
+                if not check_in_files(tlp_files, reg = reg, eta = eta, intensity = intensity) :
+                    processes.append( Process(target=run_tlp, args=(reg, eta, intensity,)) )
+                    processes[-1].start()
+        
     for proc in processes :
         proc.join()
 
