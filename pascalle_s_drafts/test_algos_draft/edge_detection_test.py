@@ -22,6 +22,8 @@ ToDo:
 #https://stackoverflow.com/questions/66571431/python-cv2-determine-radius-of-bright-spot-in-image
 #https://docs.opencv.org/4.5.2/d4/d13/tutorial_py_filtering.html
 
+#hugh circles https://dsp.stackexchange.com/questions/5930/detection-of-a-circle-in-noisy-image-data
+
 import os
 os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
@@ -44,7 +46,11 @@ data = np.load("./results/debiased_sink_bary/bary_noiselvl_0.200_eps_0.5_iter_10
 #data = np.load("./data/artificial_data_noiselvl_0.100.npy")
 #data = data[10]
 
-
+"""Can try using a threshold
+https://www.pyimagesearch.com/2016/10/31/detecting-multiple-bright-spots-in-an-image-with-python-and-opencv/
+Or simple blob detector
+https://learnopencv.com/blob-detection-using-opencv-python-c/
+"""
 
 ##Good example to use for final one, it's KBCM
 #kbcm_bary_noiselvl_1.000_reg_0.1_c_-0.25_iters_10_imgs_5_intensity_maxmin_noise_lvls_6.png
@@ -61,10 +67,10 @@ data = np.load("./results/debiased_sink_bary/bary_noiselvl_0.200_eps_0.5_iter_10
 #data = np.load("./results/debiased_sink_bary/bary_noiselvl_0.100_eps_0.3_iter_100_imgs_200_intensity_minmax.npy")
 
 #adding noise to check results
-data = np.load("./results/debiased_sink_bary/bary_noiselvl_0.500_eps_0.3_iter_100_imgs_200_intensity_minmax.npy")
+#data = np.load("./results/debiased_sink_bary/bary_noiselvl_0.500_eps_0.3_iter_100_imgs_200_intensity_minmax.npy")
 
 #adding noise to check results
-#data = np.load("./results/debiased_sink_bary/bary_noiselvl_1.000_eps_0.3_iter_100_imgs_200_intensity_minmax.npy")
+data = np.load("./results/debiased_sink_bary/bary_noiselvl_1.000_eps_0.3_iter_100_imgs_200_intensity_minmax.npy")
 
 #img = cv2.imread("./results/kbcm_bary/plots_kbcm_bary/kbcm_bary_noiselvl_1.000_reg_0.25_c_-0.7_iters_100_imgs_5_intensity_maxmin_noise_lvls_6")
 
@@ -86,15 +92,15 @@ img = data.astype(np.uint8)
 #smoothing the image to see if there are better results with noise
 #thus kernel size must be odd and greater than 1 for simplicity.
 # median filter
-median = cv2.medianBlur(img, 7)
+median = cv2.medianBlur(img, 1)
 
-#using a gaussian filer (kernel is positive and odd also)
+#using a gaussian filter (kernel is positive and odd also)
 #median = cv2.GaussianBlur(img,(1,1),0)
 
 
 #there's code to automate this based on sigma
 #https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
-canny = cv2.Canny(img,0,30)
+canny = cv2.Canny(img,0,20)
 #canny = skimage.feature.canny(img, sigma=3)
 #canny_t = canny
 
@@ -113,7 +119,7 @@ canny_t = cv2.transpose(canny)
 # numpy points are (y,x)
 points = np.argwhere(canny_t>0)
 
-"""code using circle"""
+"""code using circle
 # get min enclosing circle
 center, radius = cv2.minEnclosingCircle(points)
 print('center:', center, 'radius:', radius)
@@ -124,10 +130,10 @@ x = int(center[1])
 y = int(center[0])
 rad = int(radius)
 cv2.circle(result, (x,y), rad, (0,255,0), 1)
-
-
-
 """
+
+
+
 
 
 #code using ellipse
@@ -152,13 +158,13 @@ cv2.circle(result, (xc,yc), rad, (0,255,0), 1)
 # write results
 #cv2.imwrite("canny_ellipse.jpg", canny)
 #cv2.imwrite("ellipse_circle.jpg", result)
-"""
+
 
 
 # show results
 plt.subplot(2, 2, 1)
-plt.imshow(median, vmin=0,vmax=255)
-plt.title("median")
+plt.imshow(data, vmin=0,vmax=255)
+plt.title("original")
 plt.subplot(2, 2, 2)
 plt.imshow(canny)
 plt.title("canny")
@@ -171,8 +177,8 @@ plt.axis("off")
 plt.xticks([])
 plt.yticks([])
 plt.box(on=None)
-data=[[x,int(radius)],
-      [y,int(radius)]]
+data=[[x,int(d1)],
+      [y,int(d2)]]
 column_labels=["Center", "radius"]
 plt.axis('tight')
 plt.axis('off')

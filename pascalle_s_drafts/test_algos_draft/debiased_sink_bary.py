@@ -55,22 +55,24 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
     
     for file in files:    
         data = np.load("./data/" + file)
-        data = abs((data[:])) ##number of images to use to compute barycenter
-        data_pos = data - np.min(data)
-        mass = np.sum(data_pos, axis=0).max()
+        data = abs((data[:])) 
+        #data_pos = data - np.min(data)
+        #mass = np.sum(data_pos, axis=0).max()
         # unbalanced data
-        hs = data_pos / mass
-        
-
+        #hs = data_pos / mass
         # normalized data
-        mass_hs = np.sum(hs, axis=0)
-        hs_hat = hs / mass_hs
+        #mass_hs = np.sum(hs, axis=0)
+        #hs_hat = hs / mass_hs
 
+        #normalized
+        data = (data-np.nanmin(data))/(np.nanmax(data)-np.nanmin(data))
+        print(np.nanmin(data), np.nanmax(data), )
 
         #Computing barycenter
         """using hs for unbalances or hs_hat for normalized"""
-        P, K = computeK(hs_hat, epsilon)     
+        P, K = computeK(data, epsilon)     
         bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter) 
+        print(np.nanmin(bary), np.nanmax(bary))
 
         #Finding max and min intensities for consistent plotting
         #Finding the Min intensitywith NAN handler
