@@ -84,12 +84,11 @@ def make_interp_imgs(A, nb_images, reg=0.004):
 @timer
 def make_plot(f1, f2, f3, f4, interp_images, nb_images, reg=0.004):
     pl.figure(figsize=(10, 10))
-    cm = 'Blues'
+    cm = 'Greys'
 
     pl.suptitle('Convolutional Wasserstein Barycenters in POT\n' + str(nb_images) +
                 ' interpolation images - regularization = ' + str(round(reg, 10)),
-                fontsize=20,
-                fontweight="bold")
+                fontsize=14)
 
     for i in range(nb_images):
         for j in range(nb_images):
@@ -447,4 +446,4 @@ def test_baryc4(n_tests = 100, seed = 4269) :
 
 
 if __name__ == "__main__":
-    barycenter4()
+    barycenter()
