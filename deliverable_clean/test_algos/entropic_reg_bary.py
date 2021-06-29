@@ -16,20 +16,17 @@ def get_files():
         yield file
 
 
-def entropic_reg_bary(reg = 0.04, sample = 200, plot=True, save=True, show=False):
+def entropic_reg_bary(reg = 0.04, metrix = "sqeuclidean", plot=False, save=False, show=False):
     files = get_files()
-
-    if sample > 100 :
-        sample = 100
 
     if plot:
         plt.figure(1, figsize=(15, 10))
         k = 1
 
     for file in files:
-        title = "bary" + file[15:-4] + "_reg_" + str(reg)
-        data = np.load("./data/" + file)[:sample]
-        bary = ot.bregman.convolutional_barycenter2d(data, reg=reg)
+        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_metric_" + metric
+        data = np.load("./data/" + file)
+        bary = ot.bregman.convolutional_barycenter2d(data, reg=reg, metric = metric) # cityblock
         np.save("./results/entropic_reg_bary/" + title + ".npy", bary)
 
         if plot:
