@@ -40,17 +40,16 @@ def get_label(df) :
                 if values[i] == int(values[i]) :
                     values[i] = int(float(values[i]))
                 else :
-                    values[i] = round_sig(values[i],4)
+                    values[i] = round_sig(values[i],3)
                     if values[i] < 0.1 :
                         values[i] = "{:e}".format(values[i])
                         values[i] = re.sub(r"(0+e)","e",values[i])
                         values[i] = re.sub(r"(\.e)", "e", values[i])
-                        values[i] = re.sub(r"(\.0+)", "", values[i])
+                        values[i] = re.sub(r"(\.0+)$", "", values[i])
             except :
                 pass
             finally :
                 values[i] = str(values[i])
-
         if c in shorten.keys():
             text.append(shorten[c]+'='+", ".join(set(values))+"")
         else :
@@ -130,7 +129,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
     df = pd.DataFrame(columns=[ "noise_level",
                                 "max_amplitude",
-                                "barycenter_dist",
+                                "barycenter_distance",
                                 "above-thld_pixels",
                                 "above-thld_pixels_std",
                                 "algorithm"])
@@ -162,7 +161,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
 
             max_ampl, barycenter_loc, pixels, std = criteria(barycenter)
             param["max_amplitude"] = max_ampl
-            param["barycenter_dist"] = barycenter_loc
+            param["barycenter_distance"] = barycenter_loc
             param["above-thld_pixels"] = pixels
             param["above-thld_pixels_std"] = std
             df = df.append(param, ignore_index=True)
@@ -204,7 +203,7 @@ def compare_obv_thr_pixels_std(show_plot=True,
             if x_str != "nan" :
                 x_str = re.sub(r'(\[|\])', '', x_str)
                 x_str = re.sub(r'(\s+)', ' ', x_str)
-                x_str = re.sub(r'((?:\s)+)$', '', x_str)
+                x_str = re.sub(r'(^(?:(?:\s)+)|(?:(?:\s)+)$)', '', x_str)
                 x_str = x_str.split(' ')
                 x = []
                 x.append(float(x_str[0]))
@@ -256,7 +255,7 @@ def compare_obv_thr_pixels(show_plot=True,
               show_points_params=show_points_params)
 
 
-def compare_barycenter_dist(show_plot=True, 
+def compare_barycenter_distance(show_plot=True, 
                             save_plot=True, 
                             show_points_params=True):
     """
@@ -285,10 +284,10 @@ def compare_barycenter_dist(show_plot=True,
         return new_vector
 
     df = pd.read_csv(os.path.join("./results", "DataFrame_summary.csv"))
-    df["barycenter_dist"] = adapted_l2(df["barycenter_dist"]) #/!\ here we have the true average equal to (24.5,24.5) and not (25,25) due to the rounding as integer. See generate_data_noise_grading.py line 60.
+    df["barycenter_distance"] = adapted_l2(df["barycenter_distance"]) #/!\ here we have the true average equal to (24.5,24.5) and not (25,25) due to the rounding as integer. See generate_data_noise_grading.py line 60.
     make_plot(df=df,
               min_or_max="min",
-              variable="barycenter_dist",
+              variable="barycenter_distance",
               show_plot=show_plot, 
               save_plot=save_plot, 
               show_points_params=show_points_params)
@@ -307,7 +306,7 @@ def make_plot(df,
 
     df = df[df['noise_level'] != 0.05]
 
-    to_be_droped = list({"barycenter_dist", 
+    to_be_droped = list({"barycenter_distance", 
                          "above-thld_pixels", 
                          "above-thld_pixels_std", 
                          "max_amplitude"} - {variable})
@@ -379,10 +378,15 @@ def make_plot(df,
                                 boxstyle='round'))
                 texts.append(t)
         i+=1
-        adjust_text(texts, precision=1e-3)
+        adjust_text(texts, 
+                    precision=1e-5, 
+                    expand_text     =   (1.1, 1.25), 
+                    expand_points   =   (1.1, 1.25), 
+                    expand_objects  =   (1.1, 1.25), 
+                    expand_align    =   (1.1, 1.25))
         # plt.legend()
         plt.xlim(left = df["noise_level"].unique().min(), right = df["noise_level"].unique().max())
-        plt.title(plot_title, fontsize=10.0, fontweight='bold')
+        plt.title(plot_title, fontsize=10.0)#, fontweight='bold')
         plt.ylabel(variable)
 
 
@@ -394,7 +398,7 @@ def make_plot(df,
     # plt.tight_layout()
     plt.suptitle(title + "\n\
                  noise_level in ({})".format(', '.join([str(n) for n in df['noise_level'].unique()])), 
-                 fontsize=15.0, fontweight='bold')
+                 fontsize=15.0)#, fontweight='bold')
     if save_plot:
         plt.savefig("./results/"+title+".png")
     if show_plot:
@@ -402,25 +406,25 @@ def make_plot(df,
     plt.close()
 
 
-def compare_all(re_collect=True,
-                show_plot=False,
+def compare_all(re_collect=False,
+                show_plots=False,
                 max_ampl=True, 
-                obv_thl_pix_std=True, 
-                obv_thl_pix=True, 
-                bary_dist=True):
+                obv_thl_pix_std=False, 
+                obv_thl_pix=False, 
+                bary_dist=False):
     """
     Run all the comparisons.
     """
     if re_collect:
         collect("../test_algos/results")
     if max_ampl :
-        compare_max_amplitude(show_plot=show_plot)
+        compare_max_amplitude(show_plot=show_plots)
     if obv_thl_pix_std :
-        compare_obv_thr_pixels_std(show_plot=show_plot)
+        compare_obv_thr_pixels_std(show_plot=show_plots)
     if obv_thl_pix :
-        compare_obv_thr_pixels(show_plot=show_plot)
+        compare_obv_thr_pixels(show_plot=show_plots)
     if bary_dist :
-        compare_barycenter_dist(show_plot=show_plot)
+        compare_barycenter_distance(show_plot=show_plots)
 
 
 
