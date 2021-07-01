@@ -52,25 +52,32 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
     vmin = []
     vmax = []
  
+
+#change on line 78 - first variable in computeK    
+#hs for unbalanced
+#hs_hat for unbalanced and normalized
+#data for just normalized
     
     for file in files:    
         data = np.load("./data/" + file)
-        data = abs((data[:])) ##number of images to use to compute barycenter
-        data_pos = data - np.min(data)
-        mass = np.sum(data_pos, axis=0).max()
+        data = abs((data[:])) 
+        #data_pos = data - np.min(data)
+        #mass = np.sum(data_pos, axis=0).max()
         # unbalanced data
-        hs = data_pos / mass
-        
-
+        #hs = data_pos / mass
         # normalized data
-        mass_hs = np.sum(hs, axis=0)
-        hs_hat = hs / mass_hs
+        #mass_hs = np.sum(hs, axis=0)
+        #hs_hat = hs / mass_hs
 
+        #normalized
+        data = (data-np.nanmin(data))/(np.nanmax(data)-np.nanmin(data))
+        print(np.nanmin(data), np.nanmax(data), )
 
         #Computing barycenter
         """using hs for unbalances or hs_hat for normalized"""
-        P, K = computeK(hs_hat, epsilon)     
+        P, K = computeK(data, epsilon)     
         bary = sink.barycenter(P, K, reference="debiased", maxiter = max_iter) 
+        print(np.nanmin(bary), np.nanmax(bary))
 
         #Finding max and min intensities for consistent plotting
         #Finding the Min intensitywith NAN handler
@@ -151,7 +158,20 @@ if __name__ == "__main__":
     #for i in iters:
     debiased_sink_bary(epsilon = .3, max_iter = 100, intensity = "minmax") 
 
+"""Notes for Richard
+Debiased:
+#epsilon = .001 max_iter = int(1e6)
+#epsilon = .005 max_iter = int(1e6)
+#epsilon = .01, max_iter = int(1e6), int(1e8) (only works for greater than 1e5)
+#epsilon = .05, max_iter = int(1e7) (anything less than 1e5 doesn't work)
+#epsilon = .2   max_iter = [2500, 3000, 4000]
+#eps = .5 and iters = [500, 750, 1000]
+#eps = .7 and iters = [100, 750, 1000]   
+"""
 
+
+
+#Notes for me to remember
 #takes a long time to run
 #epsilon = .0001, max_iter = int(1e6)
 #epsilon = .05, max_iter = int(1e7)

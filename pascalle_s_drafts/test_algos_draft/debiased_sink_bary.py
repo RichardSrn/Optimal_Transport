@@ -52,6 +52,11 @@ def debiased_sink_bary(epsilon = .1, max_iter = int(1000), intensity = "zeroone"
     vmin = []
     vmax = []
  
+
+#change on line 78 - first variable in computeK    
+#hs for unbalanced
+#hs_hat for unbalanced and normalized
+#data for just normalized
     
     for file in files:    
         data = np.load("./data/" + file)
