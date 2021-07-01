@@ -125,7 +125,7 @@ def collect(path = "./data/", save=True, save_path="./results/"):
     tree = get_files(path)
     data = {d : np.array([np.load(os.path.join(path,d,file)) for file in tree[d]]) for d in tree.keys()}
     
-    data = standardize.main(data)
+    #data = standardize.main(data)
 
     df = pd.DataFrame(columns=[ "noise_level",
                                 "max_amplitude",
@@ -133,7 +133,6 @@ def collect(path = "./data/", save=True, save_path="./results/"):
                                 "above-thld_pixels",
                                 "above-thld_pixels_std",
                                 "algorithm"])
-    
     for d in tree.keys() :
         for file_name, barycenter in zip(tree[d], data[d]) :
             param = dict({"algorithm" : parse_key(d)})
@@ -406,12 +405,12 @@ def make_plot(df,
     plt.close()
 
 
-def compare_all(re_collect=False,
-                show_plots=False,
+def compare_all(re_collect=True,
+                show_plots=True,
                 max_ampl=True, 
-                obv_thl_pix_std=False, 
-                obv_thl_pix=False, 
-                bary_dist=False):
+                obv_thl_pix_std=True, 
+                obv_thl_pix=True, 
+                bary_dist=True):
     """
     Run all the comparisons.
     """
