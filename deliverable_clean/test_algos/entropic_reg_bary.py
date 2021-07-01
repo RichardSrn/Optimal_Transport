@@ -16,7 +16,7 @@ def get_files():
         yield file
 
 
-def entropic_reg_bary(reg = 0.04, metrix = "sqeuclidean", plot=False, save=False, show=False):
+def entropic_reg_bary(reg = 0.04, plot=False, save=False, show=False):
     files = get_files()
 
     if plot:
@@ -24,9 +24,9 @@ def entropic_reg_bary(reg = 0.04, metrix = "sqeuclidean", plot=False, save=False
         k = 1
 
     for file in files:
-        title = "bary" + file[15:-4] + "_reg_" + str(reg) + "_metric_" + metric
+        title = "bary" + file[15:-4] + "_reg_" + str(reg)
         data = np.load("./data/" + file)
-        bary = ot.bregman.convolutional_barycenter2d(data, reg=reg, metric = metric) # cityblock
+        bary = ot.bregman.convolutional_barycenter2d(data, reg=reg)
         np.save("./results/entropic_reg_bary/" + title + ".npy", bary)
 
         if plot:
@@ -43,4 +43,4 @@ def entropic_reg_bary(reg = 0.04, metrix = "sqeuclidean", plot=False, save=False
 
 if __name__ == "__main__":
     for reg in [0.4,4] :
-        entropic_reg_bary(reg=reg, sample = 100)
+        entropic_reg_bary(reg=reg)
