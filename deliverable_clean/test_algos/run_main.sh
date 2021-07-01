@@ -1,18 +1,6 @@
 #! /bin/bash
 
-#SBATCH -p GPU-DEPINFO
-#SBATCH -n 2 
-#SBATCH -N 1
-#SBATCH --ntasks-per-node 2
-#SBATCH -c 1
-#SBATCH --mem=50G
-#SBATCH --gres=gpu:1
-#SBATCH -t 64:00:00
-#SBATCH -o TLP.out
-#SBATCH -e TLP.err
-#SBATCH -J TLP
-
-
-source /home_expes/tools/python/Python-3.8.7_gpu/bin/activate
-
-srun --exclusive python3 ~/Optimal_Transport/deliverable_clean/test_algos/main.py 3
+sbatch run_main_ENT.sh &
+sbatch run_main_KBCM.sh &
+sbatch run_main_TLp.sh &
+sbatch run_main_DBS.sh &
