@@ -4,11 +4,9 @@
 @author: bananasacks
 """
 
-#! /usr/bin/env python3
 import os
 from os import listdir
 from os.path import isfile, join
-os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 import matplotlib.pyplot as plt
 import numpy as np

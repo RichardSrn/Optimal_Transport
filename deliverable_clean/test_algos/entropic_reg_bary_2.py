@@ -45,6 +45,22 @@ def image_from_hist(hist: np.ndarray, size_x, size_y):
     image = hist.reshape((size_x, size_y))
     return image
 
+def normalize(vectors):
+    h = np.zeros(shape=vectors.shape)
+
+    alpha = np.min(vectors)
+
+    if np.isnan(alpha) :
+        alpha = 0
+
+    for i in range(vectors.shape[0]) :
+
+        if not np.isnan(vectors[i,:]).any() :
+            sum_n_v = np.sum(vectors[i,:] - alpha)
+            for n in range(vectors.shape[1]) :
+                h[i,n] = ( vectors[i,n] - alpha ) / sum_n_v
+    return h
+
 
 def entropic_reg_bary_2(reg = 0.04, metric = "sqeuclidean", size_x=50, size_y=50, plot=False, save=False, show=False):
     files = get_files()
@@ -58,6 +74,7 @@ def entropic_reg_bary_2(reg = 0.04, metric = "sqeuclidean", size_x=50, size_y=50
     for file in files:
         title = "bary" + file[15:-4] + "_reg_" + str(reg)
         data = np.load("./data/" + file)
+        data = normalize(data)
         data = hist_from_images(data).T
         bary = ot.bregman.barycenter_sinkhorn(data, C, reg=reg)
         bary = image_from_hist(bary, size_x,size_y)
@@ -68,7 +85,6 @@ def entropic_reg_bary_2(reg = 0.04, metric = "sqeuclidean", size_x=50, size_y=50
             plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
             plt.imshow(bary)
             k += 1
-        break
 
     if show:
         plt.show()

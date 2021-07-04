@@ -15,4 +15,4 @@
 
 source /home_expes/tools/python/Python-3.8.7_gpu/bin/activate
 
-srun --exclusive python3 ~/Optimal_Transport/deliverable_clean/test_algos/main.py 1
+srun --exclusive python3 ~/Optimal_Transport/deliverable_clean/test_algos/main.py 4

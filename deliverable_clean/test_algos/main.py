@@ -60,20 +60,20 @@ def check_in_files(files, **parameters) :
 
 
 
-def run_dsb(epsilon, max_iter, normalized_balanced) :
+def run_dsb(epsilon, max_iter) :
     t = time()
     logs=[]
-    logs.append(f"\nepsilon = {epsilon} ; max_iter = {max_iter} ; normalized_balanced = {normalized_balanced}"+"\n")
+    logs.append(f"\nepsilon = {epsilon} ; max_iter = {max_iter}"+"\n")
     try :
-        debiased_sink_bary(epsilon = epsilon, max_iter = max_iter, intensity = "minmax",normalized_balanced=normalized_balanced, plot=False)
+        debiased_sink_bary(epsilon = epsilon, max_iter = max_iter, intensity = "minmax", plot=False)
         logs.append("Execution ended normally."+"\n")
     except :
         ertype = sys.exc_info()[0]
         erdescription = sys.exc_info()[1]  
-        logs.append(f"WARNING - DSB - didn't run properly with parameters epsilon={epsilon}, max_iter={max_iter}, normalized_balanced={normalized_balanced}"+"\n")
+        logs.append(f"WARNING - DSB - didn't run properly with parameters epsilon={epsilon}, max_iter={max_iter}"+"\n")
         logs.append(f"Error type : {ertype}"+"\n")
         logs.append(f"Error description : {erdescription}"+"\n")
-    T.put(';'.join([str(epsilon), str(max_iter), str(normalized_balanced), str(time()-t)]))
+    T.put(';'.join([str(epsilon), str(max_iter), str(time()-t)]))
     Q.put(' '.join(logs))
 
 
@@ -197,11 +197,10 @@ def main(algo = None):
                    (.7,      750      ),
                    (.7,      1000     )
                  ]
-        for normalized_balanced in ["nnorm_nbal","nnorm_bal","norm_bal"] :
-            for epsilon,max_iter in params :
-                if not check_in_files(dbs_files,eps = epsilon, iter = max_iter, normalized_balanced = normalized_balanced) :
-                    processes.append( Process(target=run_dsb, args=(epsilon, max_iter, normalized_balanced)) )
-                    processes[-1].start()
+        for epsilon,max_iter in params :
+            if not check_in_files(dbs_files,eps = epsilon, iter = max_iter) :
+                processes.append( Process(target=run_dsb, args=(epsilon, max_iter)) )
+                processes[-1].start()
 
         for proc in processes :
             proc.join()
@@ -212,7 +211,7 @@ def main(algo = None):
                 file.write(Q.get())
 
         with open("./times_DBS.csv", "w") as file :
-            file.write("epsilon;max_iteration;normalized_balanced;time")
+            file.write("epsilon;max_iteration;time")
             while not T.empty() :
                 file.write(T.get())
 

@@ -20,7 +20,7 @@ intensity = "minmax" or "zeroone"
     Or sets the plot's intensity to be between 0 and 1
     In case of NAN values? Set to 0 and 1
     
-imgs: number of images used to compute the barycenter
+samples: number of images used to compute the barycenter
 
 noise_lvl: choosing to use 4 different or 6 different noise levels for barycenters and plots
 
@@ -33,12 +33,9 @@ noise_lvl: choosing to use 4 different or 6 different noise levels for barycente
 #       Step size for gradient update    
 
 
-def get_files(noise_lvl=6):
+def get_files():
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
-    if noise_lvl == 4:
-        onlyfiles = [file for file in onlyfiles if file[-9:] in ["0.000.npy", "0.100.npy", "0.500.npy", "1.000.npy"]]
-    elif noise_lvl == 6:
-        onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
+    onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
        
     onlyfiles.sort()
     
@@ -48,7 +45,7 @@ def get_files(noise_lvl=6):
 
 
 """automate xsize ysize and take out of function"""
-def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, intensity = "zeroone", noise_lvl=6, imgs = 5, plot=True, save=True):      
+def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, intensity = "zeroone", samples = 5, plot=True, save=True):      
 
     files = get_files()       
     if plot:
@@ -61,7 +58,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
     for file in files:
         
         data = np.load("./data/" + file)
-        data = abs(data[:imgs]) ##number of images to use to compute barycenter
+        data = abs(data[:samples]) ##number of images to use to compute barycenter
         print(data[0])
         #Computing barycenter
         data = np.reshape(data, (len(data), (x_size*y_size)))    
@@ -117,7 +114,7 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
             
                   
         title = "bary" + file[15:-4] 
-        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
+        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_sample_" + str(samples) + "_intensity_" + str(intensity)
         if save:
             np.save("./results/kbcm_bary/" + title + params + ".npy", bary)
         
@@ -127,13 +124,8 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
 #Choose the intensity scale on the plot to be eith 0/1 or min/max 
     if plot:
         k = 1
-        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
-        if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
-            m = 3
-        elif noise_lvl == 4:
-            noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
-            m = 2
+        noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
+        m = 3
         for n in noise_lvls: 
             barys = np.load("./results/kbcm_bary/bary_noiselvl_" + n + params + ".npy")
             plt.subplot(2, m, k)
