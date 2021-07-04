@@ -7,8 +7,6 @@ import os
 
 from os import listdir
 from os.path import isfile, join
-#os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -30,12 +28,9 @@ from barycenter_model import tlp_bi
 ###
 
 
-def get_files(noise_lvl=6):
+def get_files():
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
-    if noise_lvl == 4:
-        onlyfiles = [file for file in onlyfiles if file[-9:] in ["0.000.npy", "0.100.npy", "0.500.npy", "1.000.npy"]]
-    elif noise_lvl == 6:
-        onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
+    onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
        
     onlyfiles.sort()
     
@@ -45,7 +40,7 @@ def get_files(noise_lvl=6):
 
         
 def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weights=None, inItermax=100, outstopThr=1e-8, 
-             instopThr=1e-8, log=False, intensity = "zeroone", noise_lvl=6, imgs = 5, plot=True, save=True):      
+             instopThr=1e-8, log=False, intensity = "zeroone", samples = 5, plot=True, save=True):      
 
     files = get_files()       
     if plot:
@@ -59,7 +54,7 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
     for file in files:
         
         data = np.load("./data/" + file)
-        data = abs(data[:imgs]) ##number of images to use to compute barycenter
+        data = abs(data[:samples]) ##number of images to use to compute barycenter
         
         data = np.reshape(data,(len(data), (x_size*y_size)))     
         #data = data.reshape((-1, x_size * y_size))
@@ -82,7 +77,7 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
 
         nanmin = np.nanmin(bary)
         nanmax = np.nanmax(bary)
-#Finding max and min intensities for consistent plotting
+        #Finding max and min intensities for consistent plotting
         #Finding the Min intensity with NAN handler
         print(vmin)
         print(nanmin)
@@ -126,7 +121,7 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
 
 
         title = "bary" + file[15:-4] 
-        params = "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
+        params = "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax) + "_samples_" + str(samples) + "_intensity_" + str(intensity) 
         if save: 
             np.save("./results/tlp_bary/" + title + params + ".npy", bary)
     
@@ -137,13 +132,8 @@ def tlp_bary(reg = 0.1, eta = 0.1, x_size = 50, y_size = 50, outItermax=10, weig
     #Choose the intensity scale on the plot to be eith 0/1 or min/max 
     if plot:
         k = 1
-        params = "_reg_" + str(reg) + "_eta_" + str(eta)+ "_outer-inner_" + str(outItermax)+"-"+str(inItermax) + "_imgs_" + str(imgs) + "_intensity_" + str(intensity) + "_noise_lvls_" + str(noise_lvl)
-        if noise_lvl == 6:
-            noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
-            m = 3
-        elif noise_lvl == 4:
-            noise_lvls = ["0.000", "0.100", "0.500", "1.000"]
-            m = 2
+        noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
+        m = 3
         for n in noise_lvls: 
             barys = np.load("./results/tlp_bary/bary_noiselvl_" + n + params + ".npy")
             plt.subplot(2, m, k)
