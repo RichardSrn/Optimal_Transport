@@ -84,7 +84,7 @@ def parse_key(key):
     Change the dictionary's keys to shorter or more descriptive keys.
     """
     true_key = {"debiased_sink_bary": "debiased_sinkhorn",
-                "entropic_reg_bary": "entropic_regularized",
+                "entropic_reg_bary_convol": "entropic_regularized",
                 "kbcm_bary": "kbcm",
                 "tlp_bary": "Tlp",
                 "imgs": "samples",

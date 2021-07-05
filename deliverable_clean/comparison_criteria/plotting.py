@@ -5,8 +5,8 @@ import numpy as np
 
 
 def test_same_scale(path="./results"):
-    img1 = np.load(os.path.join(path, "entropic_reg_bary/bary_lvl_0.000_mean_0.000_reg_0.4.npy"))
-    img2 = np.load(os.path.join(path, "entropic_reg_bary/bary_lvl_0.000_mean_0.000_reg_0.04.npy"))
+    img1 = np.load(os.path.join(path, "entropic_reg_bary_convol/bary_lvl_0.000_mean_0.000_reg_0.4.npy"))
+    img2 = np.load(os.path.join(path, "entropic_reg_bary_convol/bary_lvl_0.000_mean_0.000_reg_0.04.npy"))
 
     print(np.max(img1), np.min(img1))
 

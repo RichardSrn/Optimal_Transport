@@ -8,7 +8,7 @@ from time import time
 
 from debiased_sink_bary import debiased_sink_bary
 from entropic_reg_bary import entropic_reg_bary
-from entropic_reg_bary_2 import entropic_reg_bary_2
+from entropic_reg_bary_convol import entropic_reg_bary_convol
 from kbcm_bary import kbcm_bary
 from tlp_bary import tlp_bary
 
@@ -24,8 +24,8 @@ from tlp_bary import tlp_bary
 #     print("entropic_reg_bary")
 #     for k,v in kwars.items():
 #         print(k,":",v)
-# def entropic_reg_bary_2(**kwars):
-#     print("entropic_reg_bary")
+# def entropic_reg_bary_convol(**kwars):
+#     print("entropic_reg_bary_convol")
 #     for k,v in kwars.items():
 #         print(k,":",v)
 # def tlp_bary(**kwars):
@@ -79,20 +79,20 @@ def run_dsb(epsilon, max_iter):
     Q.put(' '.join(logs))
 
 
-def run_entropic(reg):
+def run_entropic(reg, metric):
     t = time()
     logs = []
-    logs.append(f"\nregularization = {reg}" + "\n")
+    logs.append(f"\nregularization = {reg} ; metric = {metric}" + "\n")
     try:
-        entropic_reg_bary(reg=reg, plot=False)
+        entropic_reg_bary(reg=reg, metric=metric, plot=False)
         logs.append("Execution ended normally." + "\n")
     except:
         ertype = sys.exc_info()[0]
         erdescription = sys.exc_info()[1]
-        logs.append(f"WARNING - ERB - didn't run properly with parameters reg={reg}" + "\n")
+        logs.append(f"WARNING - ERB - didn't run properly with parameters reg={reg}, metric={metric}" + "\n")
         logs.append(f"Error type : {ertype}" + "\n")
         logs.append(f"Error description : {erdescription}" + "\n")
-    T.put(';'.join([str(reg), str(time() - t)]))
+    T.put(';'.join([str(reg), str(metric), str(time() - t)]))
     Q.put(' '.join(logs))
 
 
@@ -132,26 +132,26 @@ def run_tlp(reg, eta, intensity):
     Q.put(' '.join(logs))
 
 
-def run_entropic_2(reg, metric):
+def run_entropic_convol(reg):
     t = time()
     logs = []
-    logs.append(f"\nregularization = {reg} ; metric = {metric}" + "\n")
+    logs.append(f"\nregularization = {reg}" + "\n")
     try:
-        entropic_reg_bary_2(reg=reg, metric=metric, plot=False)
+        entropic_reg_bary_convol(reg=reg, plot=False)
         logs.append("Execution ended normally." + "\n")
     except:
         ertype = sys.exc_info()[0]
         erdescription = sys.exc_info()[1]
-        logs.append(f"WARNING - ERB - didn't run properly with parameters reg={reg}, metric={metric}" + "\n")
+        logs.append(f"WARNING - ERBc - didn't run properly with parameters reg={reg}" + "\n")
         logs.append(f"Error type : {ertype}" + "\n")
         logs.append(f"Error description : {erdescription}" + "\n")
-    T.put(';'.join([str(reg), str(metric), str(time() - t)]))
+    T.put(';'.join([str(reg), str(time() - t)]))
     Q.put(' '.join(logs))
 
 
 def main(algo=None):
     dbs_files = get_files("./results/debiased_sink_bary")
-    entr_files = get_files("./results/entropic_reg_bary")
+    entr_files = get_files("results/entropic_reg_bary_convol")
     kbcm_files = get_files("./results/kbcm_bary")
     tlp_files = get_files("./results/tlp_bary")
 
@@ -168,7 +168,7 @@ def main(algo=None):
                 "2": 2,
                 "tlp": 3,
                 "3": 3,
-                "ent2": 4,
+                "entc": 4,
                 "4": 4}
         algo_to_run[conv[algo]] = 1
 
@@ -224,9 +224,10 @@ def main(algo=None):
         processes = []
         Q.put("\n\n\n\nRunning ERB" + "\n")
         for reg in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 0.75, 1, 4]:
-            if not check_in_files(entr_files, reg=reg):
-                processes.append(Process(target=run_entropic, args=(reg,)))
-                processes[-1].start()
+            for metric in ["sqeuclidean", "cityblock"]:
+                if not check_in_files(entr_files, reg=reg, metric=metric):
+                    processes.append(Process(target=run_entropic, args=(reg, metric,)))
+                    processes[-1].start()
 
         for proc in processes:
             proc.join()
@@ -237,7 +238,7 @@ def main(algo=None):
                 file.write(Q.get())
 
         with open("./times_ENT.csv", "w") as file:
-            file.write("regularization;time")
+            file.write("regularization;metric;time")
             while not T.empty():
                 file.write(T.get())
 
@@ -294,27 +295,26 @@ def main(algo=None):
                 file.write(T.get())
 
     if algo_to_run[4]:
-        ############
-        # entropic2 #
-        ############
+        ##########################
+        # entropic convolutional #
+        ##########################
         processes = []
-        Q.put("\n\n\n\nRunning ERB" + "\n")
+        Q.put("\n\n\n\nRunning ERBc" + "\n")
         for reg in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 0.75, 1, 4]:
-            for metric in ["sqeuclidean", "cityblock"]:
-                if not check_in_files(entr_files, reg=reg, metric=metric):
-                    processes.append(Process(target=run_entropic_2, args=(reg, metric,)))
-                    processes[-1].start()
+            if not check_in_files(entr_files, reg=reg):
+                processes.append(Process(target=run_entropic_convol, args=(reg,)))
+                processes[-1].start()
 
         for proc in processes:
             proc.join()
         Q.put("\n\n\n\n" + "-" * 50 + "\n")
 
-        with open("./logs_ENT2.txt", "w") as file:
+        with open("./logs_ENTc.txt", "w") as file:
             while not Q.empty():
                 file.write(Q.get())
 
-        with open("./times_ENT2.csv", "w") as file:
-            file.write("regularization;metric;time")
+        with open("./times_ENTc.csv", "w") as file:
+            file.write("regularization;time")
             while not T.empty():
                 file.write(T.get())
 
