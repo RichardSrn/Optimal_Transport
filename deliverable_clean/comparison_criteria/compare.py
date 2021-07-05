@@ -406,7 +406,7 @@ def make_plot(df,
 
 
 def compare_all(re_collect=True,
-                show_plots=True,
+                show_plots=False,
                 max_ampl=True, 
                 obv_thl_pix_std=True, 
                 obv_thl_pix=True, 
