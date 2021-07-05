@@ -6,7 +6,6 @@ Created on Tue May 11 10:00:15 2021
 @author: bananasacks
 """
 
-
 # -*- coding: utf-8 -*-
 """
 Debiased Sinkhorn barycenters.
@@ -14,10 +13,10 @@ Debiased Sinkhorn barycenters.
 #
 # License: MIT License
 
-import torch
-import numpy as np
-
 import warnings
+
+import numpy as np
+import torch
 
 
 def convol_imgs(imgs, K):

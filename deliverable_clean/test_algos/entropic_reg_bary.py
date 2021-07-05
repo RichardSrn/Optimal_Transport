@@ -16,7 +16,7 @@ def get_files():
         yield file
 
 
-def entropic_reg_bary(reg = 0.04, plot=False, save=False, show=False):
+def entropic_reg_bary(reg=0.04, plot=False, save=False, show=False):
     files = get_files()
 
     if plot:
@@ -31,16 +31,16 @@ def entropic_reg_bary(reg = 0.04, plot=False, save=False, show=False):
 
         if plot:
             plt.subplot(2, 3, k)
-            plt.title(title[:len(title)//2]+"\n"+title[len(title)//2:])
+            plt.title(title[:len(title) // 2] + "\n" + title[len(title) // 2:])
             plt.imshow(bary)
             k += 1
 
     if show:
         plt.show()
     if save:
-        plt.savefig("./results/entropic_reg_bary/entropic_"+str(reg)+"_reg_"+str(data.shape[0])+"_samples.png")
+        plt.savefig("./results/entropic_reg_bary/entropic_" + str(reg) + "_reg_" + str(data.shape[0]) + "_samples.png")
 
 
 if __name__ == "__main__":
-    for reg in [0.4,4] :
+    for reg in [0.4, 4]:
         entropic_reg_bary(reg=reg)

@@ -4,9 +4,11 @@
 
 
 import numpy as np
+
 import barycenter_model as model
 
-#running with and without noise
+
+# running with and without noise
 def main():
     reg = 0.001
     nb_samples = 2
@@ -14,7 +16,7 @@ def main():
     c = -0.5
 
     patterns = np.load('./artificial_data.npy')
-    #patterns = np.load('./artificial_data_no_noise.npy')
+    # patterns = np.load('./artificial_data_no_noise.npy')
     patts = patterns[:nb_samples]
     nb_samples, x_size, y_size = patts.shape
     data = patts
@@ -34,12 +36,12 @@ def main():
                                        inItermax=100, instopThr=1e-8,
                                        log=False)
     print('barycenter of TLp-BI finished')
-    
+
     np.save("./bary_TLp.npy", bary_TLp)
     np.save("./barys_TLp.npy", barys_TLp)
-    
-    #np.save("./bary_TLp_no_noise.npy", bary_TLp)
-    #np.save("./barys_TLp_no_noise.npy", barys_TLp)
+
+    # np.save("./bary_TLp_no_noise.npy", bary_TLp)
+    # np.save("./barys_TLp_no_noise.npy", barys_TLp)
 
     # barycenter of KBCM
     bary_KBCM = model.kbcm(hs, x_size, y_size, reg, c, q=95, numItermax=10,
@@ -47,7 +49,8 @@ def main():
     print('barycenter of KBCM finished')
 
     np.save("./bary_KBCM.npy", bary_KBCM)
-    #np.save("./bary_KBCM_no_noise.npy", bary_KBCM)
+    # np.save("./bary_KBCM_no_noise.npy", bary_KBCM)
+
 
 if __name__ == '__main__':
     main()

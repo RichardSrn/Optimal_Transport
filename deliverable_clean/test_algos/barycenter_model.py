@@ -239,7 +239,7 @@ def tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, weights=None, outItermax=10,
     if log:
         log = {'err': [], 'iter': []}
     mean_mass = np.mean(np.sum(hs, axis=0))
-    
+
     g = np.ones(hs.shape[0]) / hs.shape[0]
     g_hat = np.ones(hs_hat.shape[0]) * mean_mass / hs_hat.shape[0]
 
@@ -259,21 +259,21 @@ def tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, weights=None, outItermax=10,
         inerr = 1
         incpt = 0
         while inerr > instopThr and incpt < inItermax:
-            
+
             inner_g = g_hat
             # update u
             for i in range(hs_hat.shape[1]):
                 u[:, i] = hs_hat[:, i] / np.dot(Ks[:, :, i], v[:, i])
-            
+
             # update barycenter
             g_hat = np.zeros(hs_hat.shape[0])
             for i in range(hs_hat.shape[1]):
                 g_hat = g_hat + weights[i] * np.log(np.maximum(1e-19 * np.ones(len(v[:, i])),
-                                                       v[:, i] * np.dot(Ks[:, :, i].T, u[:, i])))
-            
+                                                               v[:, i] * np.dot(Ks[:, :, i].T, u[:, i])))
+
             g_hat = np.exp(g_hat)
             inerr = np.linalg.norm(g_hat - inner_g)
-            
+
             # update v
             for i in range(hs_hat.shape[1]):
                 v[:, i] = g_hat / np.dot(Ks[:, :, i].T, u[:, i])
@@ -298,5 +298,3 @@ def tlp_bi(hs, hs_hat, x_size, y_size, reg, eta, weights=None, outItermax=10,
         return g, barycenters, log
     else:
         return g, barycenters
-
-

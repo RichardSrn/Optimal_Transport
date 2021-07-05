@@ -3,16 +3,16 @@
 """
 @author: bananasacks
 """
-import os
 
 from os import listdir
 from os.path import isfile, join
-#os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from barycenter_model import kbcm
+
+# os.chdir("/Users/bananasacks/Desktop/Optimal Transport Internship/Optimal_Transport/pascalle_s_drafts/test_algos_draft")
 
 """
 intensity = "minmax" or "zeroone"
@@ -26,7 +26,8 @@ noise_lvl: choosing to use 4 different or 6 different noise levels for barycente
 
 """
 
-#parameters
+
+# parameters
 #    reg : float
 #       Entropic regularization term 
 #    c : float
@@ -36,32 +37,32 @@ noise_lvl: choosing to use 4 different or 6 different noise levels for barycente
 def get_files():
     onlyfiles = [f for f in listdir("./data") if isfile(join("./data", f))]
     onlyfiles = [file for file in onlyfiles if file[-4:] == ".npy"]
-       
+
     onlyfiles.sort()
-    
+
     for file in onlyfiles:
         yield file
-  
 
 
 """automate xsize ysize and take out of function"""
-def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, intensity = "zeroone", samples = 5, plot=True, save=True):      
 
-    files = get_files()       
+
+def kbcm_bary(reg=0.001, c=-0.5, x_size=50, y_size=50, max_iter=500, intensity="zeroone", samples=5, plot=True,
+              save=True):
+    files = get_files()
     if plot:
         plt.figure(1, figsize=(15, 10))
         k = 1
     vmin = []
     vmax = []
-    
-    
+
     for file in files:
-        
+
         data = np.load("./data/" + file)
-        data = abs(data[:samples]) ##number of images to use to compute barycenter
+        data = abs(data[:samples])  ##number of images to use to compute barycenter
         print(data[0])
-        #Computing barycenter
-        data = np.reshape(data, (len(data), (x_size*y_size)))    
+        # Computing barycenter
+        data = np.reshape(data, (len(data), (x_size * y_size)))
         data = data.T
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()
@@ -69,12 +70,12 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
         hs = data_pos / mass
         # barycenter of KBCM
         bary = kbcm(hs, x_size, y_size, reg, c, numItermax=max_iter)
-        bary = np.reshape(bary, (x_size,y_size)) 
-        
+        bary = np.reshape(bary, (x_size, y_size))
+
         nanmin = np.nanmin(bary)
         nanmax = np.nanmax(bary)
-#Finding max and min intensities for consistent plotting
-        #Finding the Min intensity with NAN handler
+        # Finding max and min intensities for consistent plotting
+        # Finding the Min intensity with NAN handler
         print(vmin)
         print(nanmin)
         if vmin == []:
@@ -82,19 +83,19 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
                 vmin = []
             else:
                 vmin = nanmin
-        ##If NAN, do nothing
-        ##If min(bary) > vmin, do nothing
+            ##If NAN, do nothing
+            ##If min(bary) > vmin, do nothing
             print(vmin)
         else:
             if np.isnan(nanmin) == False:
                 barymin = nanmin
-                if  barymin < vmin:
-                    vmin = barymin 
+                if barymin < vmin:
+                    vmin = barymin
             print(vmin)
         if np.isnan(vmin):
             vmin = 0
         print(vmin)
-        #Finding the Max intensity with NAN handler
+        # Finding the Max intensity with NAN handler
         if vmax == []:
             if np.isnan(nanmax) == True:
                 vmax = []
@@ -105,31 +106,27 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
         else:
             if np.isnan(nanmax) == False:
                 barymax = nanmax
-                if  barymax > vmax:
-                    vmax = barymax     
+                if barymax > vmax:
+                    vmax = barymax
         if np.isnan(vmax):
             vmax = 1
 
-            
-            
-                  
-        title = "bary" + file[15:-4] 
-        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_sample_" + str(samples) + "_intensity_" + str(intensity)
+        title = "bary" + file[15:-4]
+        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_sample_" + str(
+            samples) + "_intensity_" + str(intensity)
         if save:
             np.save("./results/kbcm_bary/" + title + params + ".npy", bary)
-        
-        
-        
-##Plotting set up for either 4 or 6 groups of noise levels
-#Choose the intensity scale on the plot to be eith 0/1 or min/max 
+
+    ##Plotting set up for either 4 or 6 groups of noise levels
+    # Choose the intensity scale on the plot to be eith 0/1 or min/max
     if plot:
         k = 1
         noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
         m = 3
-        for n in noise_lvls: 
+        for n in noise_lvls:
             barys = np.load("./results/kbcm_bary/bary_noiselvl_" + n + params + ".npy")
             plt.subplot(2, m, k)
-            plt.title("bary_lvl_"+n+"_mean_0.000")
+            plt.title("bary_lvl_" + n + "_mean_0.000")
             ##added vmin and vmax so all plots have same itensity scale
             k += 1
             if intensity == "zeroone":
@@ -138,16 +135,12 @@ def kbcm_bary(reg = 0.001, c = -0.5, x_size = 50, y_size = 50, max_iter= 500, in
                 plt.imshow(barys, vmin=vmin, vmax=vmax)
             else:
                 plt.imshow(barys)
-        
-
-   
 
     if save:
-        plt.savefig("./results/kbcm_bary/plots_kbcm_bary/kbcm_" + title + params + ".png")    
-   
+        plt.savefig("./results/kbcm_bary/plots_kbcm_bary/kbcm_" + title + params + ".png")
+
     if plot:
         plt.show()
-
 
 
 """
@@ -157,27 +150,21 @@ kbcm_0.4_reg_-0.5_c_300iters_5_samples.png
 if __name__ == "__main__":
     reg = [.25]
     for r in reg:
-        kbcm_bary(reg = r, c = -.7, max_iter = 100, save=True, intensity = "maxmin")
- 
- #   [.025, .05, .1]
-    
-    
-    
-    
-    
-    
-    
-#run overnight       
-#reg = .001 is taking a very long time to run
-#reg = .01 is taking along time to run        
+        kbcm_bary(reg=r, c=-.7, max_iter=100, save=True, intensity="maxmin")
 
-#already finished
-#reg = .1 with max_iter=100     c =-.5
-#reg = [.05,.5,.9] with max_iter=100  c =-.5    
-#reg = [.25,.4,.6] with max_iter=100  c =-.5    
- 
+#   [.025, .05, .1]
 
-      
+
+# run overnight
+# reg = .001 is taking a very long time to run
+# reg = .01 is taking along time to run
+
+# already finished
+# reg = .1 with max_iter=100     c =-.5
+# reg = [.05,.5,.9] with max_iter=100  c =-.5
+# reg = [.25,.4,.6] with max_iter=100  c =-.5
+
+
 """       
 if __name__ == "__main__":
     reg = [.001, .05, .1, .5, .9]
@@ -193,4 +180,3 @@ if __name__ == "__main__":
 #cs = [.001, .01, .1, .5, .7, .9]
 
 """
-    

@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import ot
-from cost_matrix import cost_matrix
+
 
 def noisefrees_bary():
     noisefrees = np.load("./data/noisefrees.npy")[:5]
@@ -19,7 +19,7 @@ def noisefrees_bary():
 
     bary = ot.bregman.convolutional_barycenter2d(noisefrees, reg=0.004)
 
-    np.save("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.npy", bary)
+    np.save("./results/noisefrees_control/noisefrees_barycenter_" + str(noisefrees.shape[0]) + "_samples.npy", bary)
 
     # bary = np.load("./results/noisefrees_control/noisefrees_barycenter_2_samples.npy")
 
@@ -28,7 +28,7 @@ def noisefrees_bary():
     plt.figure(1, figsize=(10, 10))
     plt.imshow(bary)
     plt.title("barycenter")
-    plt.savefig("./results/noisefrees_control/noisefrees_barycenter_"+str(noisefrees.shape[0])+"_samples.png")
+    plt.savefig("./results/noisefrees_control/noisefrees_barycenter_" + str(noisefrees.shape[0]) + "_samples.png")
     plt.show()
 
 
