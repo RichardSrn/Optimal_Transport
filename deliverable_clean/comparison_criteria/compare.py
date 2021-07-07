@@ -51,10 +51,9 @@ def get_label(df):
             finally:
                 values[i] = str(values[i])
         if c in shorten.keys():
-            text.append(shorten[c] + '=' + ", ".join(set(values)) + "")
+            text.append(shorten[c] + '=' + ", ".join(sorted(list(set(values)))))
         else:
-            text.append(c + '=' + ", ".join(set(values)) + "")
-    # text ="\n".join( text )
+            text.append(c + '=' + ", ".join(sorted(list(set(values)))))
     return text
 
 
@@ -63,6 +62,25 @@ def get_title_and_text(list_text, plot_title):
     If a parameter's value is the same for every point, add it to the title.
     This allows to save some space on the plot.
     """
+    def split_long_strings(long_text, max_length = 33) :
+        text = []
+        for lt in long_text :
+            if len(lt) < max_length :
+                text.append(lt)
+            else :
+                splited_lt = lt.split(" ")
+                splited_lt.reverse()
+                new_lt = []
+                while len(splited_lt) > 0 :
+                    new_lt.append('')
+                    while len(new_lt[-1]) + len(splited_lt[-1]) < max_length :
+                        new_lt[-1] += splited_lt.pop() + " "
+                        if len(splited_lt) == 0 :
+                            break
+                for nlt in new_lt :
+                    text.append(nlt)
+        return text
+    
     set_text = set(list_text[0])
     for l in list_text[1:]:
         set_text = set_text & set(l)
@@ -74,6 +92,7 @@ def get_title_and_text(list_text, plot_title):
                     list_text[i].remove(s)
 
     for i in range(len(list_text)):
+        list_text[i] = split_long_strings(list_text[i])
         list_text[i] = "\n".join(list_text[i])
 
     return (list_text, plot_title)
@@ -83,10 +102,10 @@ def parse_key(key):
     """
     Change the dictionary's keys to shorter or more descriptive keys.
     """
-    true_key = {"debiased_sink_bary": "debiased_sinkhorn",
-                "entropic_reg_bary_convol": "entropic_regularized",
-                "kbcm_bary": "kbcm",
-                "tlp_bary": "Tlp",
+    true_key = {"debiased_sink_bary": "Debiased Sinkhorn",
+                "entropic_reg_bary": "Entropic Regularized",
+                "kbcm_bary": "KBCM",
+                "tlp_bary": "TLp",
                 "imgs": "samples",
                 "eps": "epsilon",
                 "bary noiselvl": "noise_level",
@@ -106,6 +125,8 @@ def get_files(path="./data"):
     directories = [f for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
     if "noisefrees_control" in directories:
         directories.remove('noisefrees_control')
+    if "entropic_reg_bary_convol" in directories:
+        directories.remove("entropic_reg_bary_convol")
 
     tree = {d: [] for d in directories}
 
@@ -117,6 +138,16 @@ def get_files(path="./data"):
     return tree
 
 
+# def filter_nan(data) :
+#     no_nan_data = {alg : [] for alg in data.keys()}
+#     for alg in data.keys() :
+#         for d in data[alg] :
+#             if not np.isnan(d).all() :
+#                 no_nan_data[alg].append(d)
+#         no_nan_data[alg] = np.array(no_nan_data[alg])
+#     return no_nan_data  
+
+
 def collect(path="./data/", save=True, save_path="./results/"):
     """
     Collect the data from the barycenter's files.
@@ -124,7 +155,15 @@ def collect(path="./data/", save=True, save_path="./results/"):
     """
     tree = get_files(path)
     data = {d: np.array([np.load(os.path.join(path, d, file)) for file in tree[d]]) for d in tree.keys()}
+    indexes = []
+    for d in tree.keys() :
+        for file in tree[d] :
+            indexes.append([d,file])
+    indexes = pd.DataFrame(indexes, 
+                           columns=("directory","file"))
+    indexes.to_csv(os.path.join(save_path,"indexes.csv"), index=False)
 
+    # data = filter_nan(data)
     # data = standardize.main(data)
 
     df = pd.DataFrame(columns=["noise_level",
@@ -302,18 +341,19 @@ def make_plot(df,
               variable,
               show_plot=True,
               save_plot=True,
-              show_points_params=True):
+              show_points_params=True,
+              log_bests=True):
     """
     Make the plot for any comparison.
     If show_points_params==True, show the parameters of the algorithms for a each point.
     """
+    print(f"\n*** Making plot for variable : {variable}.***\n")
 
     df = df[df['noise_level'] != 0.05]
 
     to_be_droped = list({"barycenter_distance",
                          "above-thld_pixels",
-                         "above-thld_pixels_std",
-                         "max_amplitude"} - {variable})
+                         "above-thld_pixels_std"} - {variable})
 
     df = df.drop(to_be_droped, axis=1)
 
@@ -321,17 +361,26 @@ def make_plot(df,
                                    "algorithm",
                                    variable])
 
-    for noise_lvl in df["noise_level"].unique():
+    for noise_lvl in sorted(list(df["noise_level"].unique())):
         sub_noise_df = df[df["noise_level"] == noise_lvl]
-        for algo in sub_noise_df["algorithm"].unique():
+
+
+        for algo in sorted(list(sub_noise_df["algorithm"].unique())):
             sub_algo_noise_df = sub_noise_df[sub_noise_df["algorithm"] == algo]
 
             if min_or_max == "min":
-                maxminimum = sub_algo_noise_df.min()[variable]
+                maxminimum = sub_algo_noise_df[np.isnan(list(sub_algo_noise_df["max_amplitude"])) == False].min()[variable]
             elif min_or_max == "max":
-                maxminimum = sub_algo_noise_df.max()[variable]
+                maxminimum = sub_algo_noise_df[np.isnan(list(sub_algo_noise_df["max_amplitude"])) == False].max()[variable]
 
             sub_df = sub_df.append(sub_algo_noise_df.loc[sub_algo_noise_df[variable] == maxminimum])
+
+    if log_bests :
+        sub_df.to_csv(f"./results/Logs_best_{variable}.csv")
+
+    if variable != "max_amplitude" :
+        sub_df = sub_df.drop("max_amplitude",axis=1)
+        df = df.drop("max_amplitude",axis=1)
 
     sub_df.drop_duplicates(inplace=True)
     sub_df.sort_values(by=["noise_level"], inplace=True)
@@ -342,7 +391,7 @@ def make_plot(df,
     colors = ["red", "green", "blue", "magenta", "orange", "cyan"]
     i = 0
 
-    for algo in sub_df["algorithm"].unique():
+    for algo in sorted(list(sub_df["algorithm"].unique())) :
         plt.subplot(nb_algo, 1, i + 1)
         sub_algo_variable_df = pd.DataFrame(sub_df[sub_df['algorithm'] == algo])
         sub_algo_variable_df.dropna(axis=1, how='any', inplace=True)
@@ -369,7 +418,7 @@ def make_plot(df,
                 y_s.append(sub_algo_noise_variable_df[variable].iloc[0])
                 j += 1
 
-            list_text, plot_title = get_title_and_text(s_s, plot_title)
+            list_text, plot_title = get_title_and_text(list(s_s), plot_title)
             for k in range(j):
                 t = plt.text(x=x_s[k] + 0.01,
                              y=y_s[k],
@@ -392,6 +441,7 @@ def make_plot(df,
         plt.xlim(left=df["noise_level"].unique().min(), right=df["noise_level"].unique().max())
         plt.title(plot_title, fontsize=10.0)  # , fontweight='bold')
         plt.ylabel(variable)
+        plt.xticks(sorted(list(df["noise_level"].unique())))
 
     plt.xlabel("noise_level")
 
@@ -409,24 +459,43 @@ def make_plot(df,
 
 
 def compare_all(re_collect=True,
-                show_plots=False,
                 max_ampl=True,
                 obv_thl_pix_std=True,
                 obv_thl_pix=True,
-                bary_dist=True):
+                bary_dist=True,
+                show_plots=False):
     """
     Run all the comparisons.
     """
     if re_collect:
+        print("\n\n","="*50,"\n\n")
+        print("\nRe-collect the data from the computed barycenters.")
         collect("../test_algos/results")
+        print("DONE")
+
     if max_ampl:
+        print("\n\n","="*50,"\n\n")
+        print("\nPlot the maximum amplitude of each algorithm for each noise level.")
         compare_max_amplitude(show_plot=show_plots)
+        print("DONE")
+
     if obv_thl_pix_std:
+        print("\n\n","="*50,"\n\n")
+        print("\nPlot the minimum standard deviation of the blobs (above threshold pixels) of each algorithm for each noise level.")
         compare_obv_thr_pixels_std(show_plot=show_plots)
+        print("DONE")
+
     if obv_thl_pix:
+        print("\n\n","="*50,"\n\n")
+        print("\nPlot the minimum size of the blobs (above threshold pixels) of each algorithm for each noise level.")
         compare_obv_thr_pixels(show_plot=show_plots)
+        print("DONE")
+
     if bary_dist:
+        print("\n\n","="*50,"\n\n")
+        print("\nPlot the minimum distance between the barycenter and the theoretical, deterministic, barycenter of each algorithm for each noise level.")
         compare_barycenter_distance(show_plot=show_plots)
+        print("DONE")
 
 
 if __name__ == "__main__":
