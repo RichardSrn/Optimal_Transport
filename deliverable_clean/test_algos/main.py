@@ -53,10 +53,9 @@ def check_in_files(files, **parameters):
 
     print(param)
 
-    for file in files:
-        if all(p in file for p in param):
-            print(f"{file} already exists.")
-            return True
+    if sum([all([p in file for p in param]) for file in files]) >= 4:
+        print(f"{param} already computed for each noise level.")
+        return True
 
     return False
 
