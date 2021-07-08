@@ -56,7 +56,7 @@ def generate_data(seed=42, nb_samples = 200,
         coors.append(coor)
         coors.append([-coor[0],-coor[1]])
     coors = np.vstack(coors)
-    coors += np.array([25, 25])
+    coors += np.array([x_size/2, y_size/2])
     coors = coors.astype(int)
 
     # images with signal and (maybe) noise
@@ -70,13 +70,23 @@ def generate_data(seed=42, nb_samples = 200,
             = signals[sample_id]
         patterns[sample_id] = noisefrees[sample_id] + \
                               rng.normal(noise_mean, noise_level,
-                                               (x_size, y_size))
+                                               (x_size, y_size)))
 
     title = get_title(noise_level, noise_mean, 5)
-    np.save("./data/"+title, patterns)
+    # np.save("./data/"+title, patterns)
+
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(10,5))
+    plt.subplot(2,1,1)
+    plt.imshow(patterns[0])
+    plt.subplot(2,1,2)
+    plt.imshow(patterns[1])
+    plt.show()
+
     return patterns
 
 
 if __name__=="__main__":
-    for i in [0,0.1,0.2,0.5,1] :
-        generate_data(noise_level = i)
+    # for i in [0,0.1,0.2,0.5,1] :
+    #     generate_data(noise_level = i)
+    generate_data(noise_level=.1, noise_mean=0, nb_samples=2, x_size=50, y_size=50)
