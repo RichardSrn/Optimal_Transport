@@ -47,20 +47,31 @@ def get_files():
 """automate xsize ysize and take out of function"""
 
 
-def kbcm_bary(reg=0.001, c=-0.5, x_size=50, y_size=50, max_iter=500, intensity="zeroone", samples=5, plot=True,
+def kbcm_bary(reg=0.001,
+              c=-0.5, 
+              x_size=50, 
+              y_size=50, 
+              max_iter=500, 
+              intensity="zeroone", 
+              samples=5, 
+              plot=True,
               save=True):
+    print(f"START kbcm_bary\n\
+          reg={reg},c={c},max_iter={max_iter},intensity={intensity},samples={samples}")
+
     files = get_files()
-    if plot:
-        plt.figure(1, figsize=(15, 10))
-        k = 1
+    # if plot:
+    #     plt.figure(1, figsize=(15, 10))
+    #     k = 1
     vmin = []
     vmax = []
 
     for file in files:
+        print(f"Current file is : {file}")
 
         data = np.load("./data/" + file)
         data = abs(data[:samples])  ##number of images to use to compute barycenter
-        print(data[0])
+        # print(data[0])
         # Computing barycenter
         data = np.reshape(data, (len(data), (x_size * y_size)))
         data = data.T
@@ -72,75 +83,79 @@ def kbcm_bary(reg=0.001, c=-0.5, x_size=50, y_size=50, max_iter=500, intensity="
         bary = kbcm(hs, x_size, y_size, reg, c, numItermax=max_iter)
         bary = np.reshape(bary, (x_size, y_size))
 
-        nanmin = np.nanmin(bary)
-        nanmax = np.nanmax(bary)
-        # Finding max and min intensities for consistent plotting
-        # Finding the Min intensity with NAN handler
-        print(vmin)
-        print(nanmin)
-        if vmin == []:
-            if np.isnan(nanmin) == True:
-                vmin = []
-            else:
-                vmin = nanmin
-            ##If NAN, do nothing
-            ##If min(bary) > vmin, do nothing
-            print(vmin)
-        else:
-            if np.isnan(nanmin) == False:
-                barymin = nanmin
-                if barymin < vmin:
-                    vmin = barymin
-            print(vmin)
-        if np.isnan(vmin):
-            vmin = 0
-        print(vmin)
-        # Finding the Max intensity with NAN handler
-        if vmax == []:
-            if np.isnan(nanmax) == True:
-                vmax = []
-            else:
-                vmax = nanmax
-        ##If NAN, do nothing
-        ##If max(bary) < vmax, do nothing
-        else:
-            if np.isnan(nanmax) == False:
-                barymax = nanmax
-                if barymax > vmax:
-                    vmax = barymax
-        if np.isnan(vmax):
-            vmax = 1
-
         title = "bary" + file[15:-4]
-        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_sample_" + str(
-            samples) + "_intensity_" + str(intensity)
-        if save:
-            np.save("./results/kbcm_bary/" + title + params + ".npy", bary)
+        params = "_reg_" + str(reg) + "_c_" + str(c) + "_iters_" + str(max_iter) + "_sample_" + str(samples) + "_intensity_" + str(intensity)
+        np.save("./results/kbcm_bary/" + title + params + ".npy", bary)
+        print("SAVED -- "+"./results/kbcm_bary/" + title + params + ".npy")
+
+    ### PLOTTING ###
+        # nanmin = np.nanmin(bary)
+        # nanmax = np.nanmax(bary)
+        # # Finding max and min intensities for consistent plotting
+        # # Finding the Min intensity with NAN handler
+        # # print(vmin)
+        # # print(nanmin)
+        # if vmin == []:
+        #     if np.isnan(nanmin) == True:
+        #         vmin = []
+        #     else:
+        #         vmin = nanmin
+        #     ##If NAN, do nothing
+        #     ##If min(bary) > vmin, do nothing
+        #     print(vmin)
+        # else:
+        #     if np.isnan(nanmin) == False:
+        #         barymin = nanmin
+        #         if barymin < vmin:
+        #             vmin = barymin
+        #     print(vmin)
+        # if np.isnan(vmin):
+        #     vmin = 0
+        # print(vmin)
+        # # Finding the Max intensity with NAN handler
+        # if vmax == []:
+        #     if np.isnan(nanmax) == True:
+        #         vmax = []
+        #     else:
+        #         vmax = nanmax
+        # ##If NAN, do nothing
+        # ##If max(bary) < vmax, do nothing
+        # else:
+        #     if np.isnan(nanmax) == False:
+        #         barymax = nanmax
+        #         if barymax > vmax:
+        #             vmax = barymax
+        # if np.isnan(vmax):
+        #     vmax = 1
+
 
     ##Plotting set up for either 4 or 6 groups of noise levels
     # Choose the intensity scale on the plot to be eith 0/1 or min/max
-    if plot:
-        k = 1
-        noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
-        m = 3
-        for n in noise_lvls:
-            barys = np.load("./results/kbcm_bary/bary_noiselvl_" + n + params + ".npy")
-            plt.subplot(2, m, k)
-            plt.title("bary_lvl_" + n + "_mean_0.000")
-            ##added vmin and vmax so all plots have same itensity scale
-            k += 1
-            if intensity == "zeroone":
-                plt.imshow(barys, vmin=0, vmax=1)
-            elif intensity == "minmax":
-                plt.imshow(barys, vmin=vmin, vmax=vmax)
-            else:
-                plt.imshow(barys)
+    # if plot:
+    #     k = 1
+    #     noise_lvls = ["0.000", "0.100", "0.200", "0.500", "1.000"]
+    #     m = 3
+    #     for n in noise_lvls:
+    #         barys = np.load("./results/kbcm_bary/bary_noiselvl_" + n + params + ".npy")
+    #         plt.subplot(2, m, k)
+    #         plt.title("bary_lvl_" + n + "_mean_0.000")
+    #         ##added vmin and vmax so all plots have same itensity scale
+    #         k += 1
+    #         if intensity == "zeroone":
+    #             plt.imshow(barys, vmin=0, vmax=1)
+    #         elif intensity == "minmax":
+    #             plt.imshow(barys, vmin=vmin, vmax=vmax)
+    #         else:
+    #             plt.imshow(barys)
 
-    if save:
-        plt.savefig("./results/kbcm_bary/plots_kbcm_bary/kbcm_" + title + params + ".png")
+    # if save:
+    #     plt.savefig("./results/kbcm_bary/plots_kbcm_bary/kbcm_" + title + params + ".png")
 
-    if plot:
-        plt.show()
+    # if plot:
+    #     plt.show()
+    print(f"END kbcm_bary\n\
+          reg={reg},c={c},max_iter={max_iter},intensity={intensity},samples={samples}")
+
 
 
 """

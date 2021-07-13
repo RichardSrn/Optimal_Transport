@@ -33,14 +33,15 @@ def get_files(path="./data"):
 
     return onlyfiles
 
-def check_in_files(existing_files, cheking_file):
-    if any(cheking_file in existing_files) :
-        print(f"{cheking_file} already exists.")
-        return True
-    return False
 
 
-def debiased_sink_bary(epsilon=.1, max_iter=int(1000), intensity="zeroone", plot=True, save=True):
+def debiased_sink_bary(epsilon=.1, 
+                       max_iter=int(1000), 
+                       intensity="zeroone", 
+                       plot=True, 
+                       save=True):
+    print(f"START debiased_sink_bary\n\
+          epsilon={epsilon},max_iter={max_iter},intensity={intensity}")
     files = get_files()
 
     # if plot:
@@ -48,9 +49,10 @@ def debiased_sink_bary(epsilon=.1, max_iter=int(1000), intensity="zeroone", plot
     # vmin = []
     # vmax = []
 
-    existing_files = get_files("./results/debiased_sink_bary")
+    # existing_files = get_files("./results/debiased_sink_bary")
 
     for file in files:
+        print(f"Current file is : {file}")
         data = np.load("./data/" + file)
         data = abs((data[:]))
         title = "bary" + file[15:-4]
@@ -59,29 +61,28 @@ def debiased_sink_bary(epsilon=.1, max_iter=int(1000), intensity="zeroone", plot
         else :
             params = "_eps_" + str(epsilon) + "_iter_" + str(max_iter) + "_intensity_" + str(intensity)
 
-        if check_in_files(existing_files, title + params + ".npy") :
-            bary = np.load("./results/debiased_sink_bary/" + title + params + ".npy")
-        else :
-            # data_pos = data - np.min(data)
-            # mass = np.sum(data_pos, axis=0).max()
-            # unbalanced data
-            # hs = data_pos / mass
-            # normalized data
-            # mass_hs = np.sum(hs, axis=0)
-            # hs_hat = hs / mass_hs
+        # data_pos = data - np.min(data)
+        # mass = np.sum(data_pos, axis=0).max()
+        # unbalanced data
+        # hs = data_pos / mass
+        # normalized data
+        # mass_hs = np.sum(hs, axis=0)
+        # hs_hat = hs / mass_hs
 
 
-            # normalized
-            data = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data))
-            print(np.nanmin(data), np.nanmax(data), )
+        # normalized
+        data = (data - np.nanmin(data)) / (np.nanmax(data) - np.nanmin(data))
+        # print(np.nanmin(data), np.nanmax(data), )
 
-            # Computing barycenter
-            """using hs for unbalances or hs_hat for normalized"""
-            P, K = computeK(data, epsilon)
-            bary = sink.barycenter(P, K, reference="debiased", maxiter=max_iter)
-            print(np.nanmin(bary), np.nanmax(bary))
-            np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
+        # Computing barycenter
+        """using hs for unbalances or hs_hat for normalized"""
+        P, K = computeK(data, epsilon)
+        bary = sink.barycenter(P, K, reference="debiased", maxiter=max_iter)
+        # print(np.nanmin(bary), np.nanmax(bary))
+        np.save("./results/debiased_sink_bary/" + title + params + ".npy", bary)
+        print("SAVED -- "+"./results/debiased_sink_bary/" + title + params + ".npy")
 
+    ### PLOTTING ###
         # Finding max and min intensities for consistent plotting
         # Finding the Min intensitywith NAN handler
         # if vmin == []:
@@ -148,6 +149,8 @@ def debiased_sink_bary(epsilon=.1, max_iter=int(1000), intensity="zeroone", plot
 
     # if plot:
     #     plt.show()
+    print(f"END debiased_sink_bary\n\
+          epsilon={epsilon},max_iter={max_iter},intensity={intensity}")
 
 
 if __name__ == "__main__":

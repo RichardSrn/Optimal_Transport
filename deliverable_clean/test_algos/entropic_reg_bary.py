@@ -66,16 +66,26 @@ def normalize(vectors):
     return h
 
 
-def entropic_reg_bary(reg=0.04, metric="sqeuclidean", size_x=50, size_y=50, plot=False, save=False, show=False):
+def entropic_reg_bary(reg=0.04, 
+                      metric="sqeuclidean", 
+                      size_x=50, 
+                      size_y=50, 
+                      plot=False, 
+                      save=False, 
+                      show=False):
+    print(f"START entropic_reg_bary\n\
+          reg={reg},metric={metric}")
     files = get_files()
 
     C = cost_matrix(size_x, size_y, metric=metric)  # metric = "cityblock"
 
-    if plot:
-        plt.figure(1, figsize=(15, 10))
-        k = 1
+    # if plot:
+    #     plt.figure(1, figsize=(15, 10))
+    #     k = 1
 
     for file in files:
+        print(f"Current file is : {file}")
+
         title = "bary" + file[15:-4] + "_reg_" + str(reg)
         data = np.load("./data/" + file)
         data = normalize(data)
@@ -83,18 +93,22 @@ def entropic_reg_bary(reg=0.04, metric="sqeuclidean", size_x=50, size_y=50, plot
         bary = ot.bregman.barycenter_sinkhorn(data, C, reg=reg)
         bary = image_from_hist(bary, size_x, size_y)
         np.save("./results/entropic_reg_bary/" + title + ".npy", bary)
+        print("SAVED -- "+"./results/entropic_reg_bary/" + title + ".npy")
 
-        if plot:
-            plt.subplot(2, 3, k)
-            plt.title(title[:len(title) // 2] + "\n" + title[len(title) // 2:])
-            plt.imshow(bary)
-            k += 1
+    ### PLOTTING ###
+        # if plot:
+        #     plt.subplot(2, 3, k)
+        #     plt.title(title[:len(title) // 2] + "\n" + title[len(title) // 2:])
+        #     plt.imshow(bary)
+        #     k += 1
 
-    if show:
-        plt.show()
-    if save:
-        plt.savefig(
-            "./results/entropic_reg_bary/entropic_" + str(reg) + "_reg_" + str(data.shape[0]) + "_samples.png")
+    # if show:
+    #     plt.show()
+    # if save:
+    #     plt.savefig(
+    #         "./results/entropic_reg_bary/entropic_" + str(reg) + "_reg_" + str(data.shape[0]) + "_samples.png")
+    print(f"END entropic_reg_bary\n\
+          reg={reg},metric={metric}")
 
 
 if __name__ == "__main__":
