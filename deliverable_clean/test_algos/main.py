@@ -95,20 +95,20 @@ def run_entropic(reg, metric):
     Q.put(' '.join(logs))
 
 
-def run_kbcm(reg, max_iter, c, intensity):
+def run_kbcm(reg, max_iter, c, intensity, samples):
     t = time()
     logs = []
-    logs.append(f"\nregularization = {reg} ; max_iter = {max_iter} ; c = {c} ; intensity = {intensity}" + "\n")
+    logs.append(f"\nregularization = {reg} ; max_iter = {max_iter} ; c = {c} ; intensity = {intensity} ; samples = {samples}" + "\n")
     try:
-        kbcm_bary(reg=reg, c=c, max_iter=100, save=True, intensity="maxmin", plot=False)
+        kbcm_bary(reg=reg, c=c, max_iter=100, save=True, intensity="maxmin", plot=False, samples=samples)
         logs.append("Execution ended normally." + "\n")
     except:
         ertype = sys.exc_info()[0]
         erdescription = sys.exc_info()[1]
-        logs.append(f"WARNING - KBCM - didn't run properly with parameters reg={reg}, max_iter={max_iter}" + "\n")
+        logs.append(f"WARNING - KBCM - didn't run properly with parameters reg={reg}, max_iter={max_iter}, samples={samples}" + "\n")
         logs.append(f"Error type : {ertype}" + "\n")
         logs.append(f"Error description : {erdescription}" + "\n")
-    T.put(';'.join([str(reg), str(max_iter), str(c), str(intensity), str(time() - t)]))
+    T.put(';'.join([str(reg), str(max_iter), str(c), str(intensity), str(samples), str(time() - t)]))
     Q.put(' '.join(logs))
 
 
@@ -171,6 +171,7 @@ def main(algo=None):
                 "4": 4}
         algo_to_run[conv[algo]] = 1
 
+
     if algo_to_run[0]:
         ############
         # debiased #
@@ -178,26 +179,69 @@ def main(algo=None):
         processes = []
         Q.put("\n\n\n\nRunning DSB" + "\n")
 
-        params = [(1e-5, int(1e2)),
-                  # (1e-5,    int(1e6) ),
-                  (1e-5, int(1e3)),
-                  # (.001,    int(1e6) ),
-                  # (.005,    int(1e6) ),
-                  # (.01,     int(1e6) ),
-                  # (.01,     int(1e8) ),
-                  (.01, int(1e5)),
-                  # (.05,     int(1e7) ),
-                  (.05, int(1e5)),
-                  (.2, 2500),
-                  (.2, 3000),
-                  (.2, 4000),
-                  (.5, 500),
-                  (.5, 750),
-                  (.5, 1000),
-                  (.7, 100),
-                  (.7, 750),
-                  (.7, 1000)
-                  ]
+        params = [
+                  (.00001,  100),
+                  (.00001,  10000),
+                  (.00001,  1000000),
+                  (.00001,  100000000),
+#
+                  (.0001,   100),
+                  (.0001,   10000),
+                  (.0001,   1000000),
+                  (.0001,   100000000),
+#
+                  (.001,    100),
+                  (.001,    10000),
+                  (.001,    1000000),
+                  (.001,    100000000),
+#
+                  (.005,    100),
+                  (.005,    10000),
+                  (.005,    1000000),
+                  (.005,    100000000),
+#
+                  (.01,     100),
+                  (.01,     10000),
+                  (.01,     1000000),
+                  (.01,     100000000),
+#
+                  (.05,     100),
+                  (.05,     10000),
+                  (.05,     1000000),
+                  (.05,     100000000),
+#
+                  (.2,      100),
+                  (.2,      500),
+                  (.2,      1000),
+                  (.2,      5000),
+                  (.2,      10000),
+                  (.2,      100000),
+                  (.2,      1000000),
+#
+                  (.5,      100),
+                  (.5,      500),
+                  (.5,      1000),
+                  (.5,      5000),
+                  (.5,      10000),
+                  (.5,      100000),
+                  (.5,      1000000),
+#
+                  (.7,      100),
+                  (.7,      500),
+                  (.7,      1000),
+                  (.7,      5000),
+                  (.7,      10000),
+                  (.7,      100000),
+                  (.7,      1000000),
+#
+                  (1,      100),
+                  (1,      500),
+                  (1,      1000),
+                  (1,      5000),
+                  (1,      10000),
+                  (1,      100000),
+                  (1,      1000000)
+                 ]
         for epsilon, max_iter in params:
             if not check_in_files(dbs_files, eps=epsilon, iter=max_iter):
                 processes.append(Process(target=run_dsb, args=(epsilon, max_iter)))
@@ -251,9 +295,10 @@ def main(algo=None):
             for max_iter in [100, 500]:
                 for c in [-.5]:
                     for intensity in ["minmax"]:
-                        if not check_in_files(kbcm_files, reg=reg, iters=max_iter):
-                            processes.append(Process(target=run_kbcm, args=(reg, max_iter, c, intensity)))
-                            processes[-1].start()
+                        for samples in [200] :
+                            if not check_in_files(kbcm_files, reg=reg, iters=max_iter, samples=samples):
+                                processes.append(Process(target=run_kbcm, args=(reg, max_iter, c, intensity, samples)))
+                                processes[-1].start()
 
         for proc in processes:
             proc.join()
@@ -264,9 +309,10 @@ def main(algo=None):
                 file.write(Q.get())
 
         with open("./times_KBCM.csv", "w") as file:
-            file.write("regularization;max_iteration;time")
+            file.write("regularization;max_iteration;c;intensity;samples;time")
             while not T.empty():
                 file.write(T.get())
+
 
     if algo_to_run[3]:
         #######
@@ -276,7 +322,7 @@ def main(algo=None):
         Q.put("\n\n\n\nRunning TLp" + "\n")
         for reg in [.001, .01, .05, .1, .5, .9]:
             for eta in [.001, .1, .05, .7]:
-                for intensity in ["minmax", "zeroone"]:
+                for intensity in ["minmax"]:
                     if not check_in_files(tlp_files, reg=reg, eta=eta, intensity=intensity):
                         processes.append(Process(target=run_tlp, args=(reg, eta, intensity,)))
                         processes[-1].start()
