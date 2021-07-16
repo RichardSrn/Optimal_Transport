@@ -269,7 +269,7 @@ def main(algo=None):
             while not Q.empty():
                 file.write(Q.get())
 
-        with open("./times_DBS.csv", "w") as file:
+        with open("./results/times_DBS.csv", "w") as file:
             file.write("epsilon,max_iteration,time\n")
             while not T.empty():
                 file.write(T.get())
@@ -294,7 +294,7 @@ def main(algo=None):
             while not Q.empty():
                 file.write(Q.get())
 
-        with open("./times_ENT.csv", "w") as file:
+        with open("./results/times_ENT.csv", "w") as file:
             file.write("regularization,metric,time\n")
             while not T.empty():
                 file.write(T.get())
@@ -305,7 +305,7 @@ def main(algo=None):
         ########
         processes = []
         Q.put("\n\n\n\nRunning KBCM" + "\n")
-        for reg in [.001, 0.005, .01, .05, .1, .25, .5, .75, .9, 1, 2.5, 5]:
+        for reg in [.001, .01, .1, .5, .9, 1, 5]:
             for max_iter in [100, 500, 1000, 1500, 2000, 5000, 10000]:
                 for c in [-.5]:
                     for intensity in ["minmax"]:
@@ -322,7 +322,7 @@ def main(algo=None):
             while not Q.empty():
                 file.write(Q.get())
 
-        with open("./times_KBCM.csv", "w") as file:
+        with open("./results/times_KBCM.csv", "w") as file:
             file.write("regularization,max_iterations,time\n")
             while not T.empty():
                 file.write(T.get())
@@ -334,7 +334,7 @@ def main(algo=None):
         #######
         processes = []
         Q.put("\n\n\n\nRunning TLp" + "\n")
-        for reg in [.001, 0.005, .01, .05, .1, .25, .5, .75, .9, 1, 2.5, 5]:
+        for reg in [.001, .01, .1, .5, .9, 1, 5]:
             for eta in [.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1]:
                 for intensity in ["minmax"]:
                     if not check_in_files(tlp_files, reg=reg, eta=eta, intensity=intensity):
@@ -348,7 +348,7 @@ def main(algo=None):
             while not Q.empty():
                 file.write(Q.get())
 
-        with open("./times_TLp.csv", "w") as file:
+        with open("./results/times_TLp.csv", "w") as file:
             file.write("regularization,eta,time\n")
             while not T.empty():
                 file.write(T.get())
