@@ -72,7 +72,8 @@ def tlp_bary(reg=0.1,
 
         data = np.reshape(data, (len(data), (x_size * y_size)))
         # data = data.reshape((-1, x_size * y_size))
-        # Computing barycenter
+        
+        ## Computing barycenter
         data = data.T
         data_pos = data - np.min(data)
         mass = np.sum(data_pos, axis=0).max()

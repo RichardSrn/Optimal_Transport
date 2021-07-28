@@ -70,7 +70,7 @@ def generate_data(seed=42, nb_samples = 200,
             = signals[sample_id]
         patterns[sample_id] = noisefrees[sample_id] + \
                               rng.normal(noise_mean, noise_level,
-                                               (x_size, y_size)))
+                                               (x_size, y_size))
 
     title = get_title(noise_level, noise_mean, 5)
     # np.save("./data/"+title, patterns)

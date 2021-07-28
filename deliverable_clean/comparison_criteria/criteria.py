@@ -17,10 +17,10 @@ def max_amplitude(image):
     """
     Get the max amplitude of the image.
     """
-    maximum = np.max(image)
-    location = np.where(image == maximum)
+    maximum_amplitude = np.max(image)-np.min(image)
+    location = np.where(image == maximum_amplitude+np.min(image))
 
-    return (maximum, location)
+    return (maximum_amplitude, location)
 
 
 def pixel_above_thr(image, threshold):
@@ -32,7 +32,7 @@ def pixel_above_thr(image, threshold):
     return (np.array(np.where(image >= threshold / 2)), image[np.where(image >= threshold / 2)])
 
 
-def sd_pixels(pixels):
+def std_pixels(pixels):
     """
     Get the standard deviation of the above-threshold pixels coordinates.
 
@@ -41,7 +41,7 @@ def sd_pixels(pixels):
 
     mu = np.array([np.mean(pixels, axis=1)]).T
 
-    sigma = np.array([np.sqrt(np.sum(np.square(pixels - mu), axis=1) / pixels.shape[0])]).T
+    sigma = np.sqrt(np.sum(np.square(pixels - mu), axis=1) / pixels.shape[0])
     return sigma
 
 
@@ -69,9 +69,10 @@ def criteria(image):
     if max_ampl == 0:
         return (None, None, None, None)
     loc_pixels_abv_thld, value_pixels_abv_thld = pixel_above_thr(image, max_ampl)
-    std = sd_pixels(loc_pixels_abv_thld)
+    nb_pixels_abv_thld = len(loc_pixels_abv_thld[0])
+    std = std_pixels(loc_pixels_abv_thld)
     loc_barycenter = get_barycenter_location(loc_pixels_abv_thld, value_pixels_abv_thld)
-    return (max_ampl, loc_barycenter, loc_pixels_abv_thld, std)
+    return (max_ampl, loc_barycenter, nb_pixels_abv_thld, std)
 
 
 if __name__ == '__main__':

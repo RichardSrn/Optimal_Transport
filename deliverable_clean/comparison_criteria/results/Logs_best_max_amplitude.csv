@@ -1,27 +1,21 @@
-,noise_level,algorithm,max_amplitude,eta,intensity,outer-inner,reg,samples,iters,sample,epsilon,iter
-329,0.0,Debiased Sinkhorn,0.759837489702366,,minmax,,,,,,0.05,100000.0
-404,0.0,Entropic Regularized,0.015369753391953653,,,,4.0,,,,,
-240,0.0,KBCM,0.010283151490657632,,,,0.001,5.0,100.0,,,
-6,0.0,TLp,0.009049783525811523,0.7,minmax,10-100,0.001,5.0,,,,
-7,0.0,TLp,0.009049783525811523,0.7,zeroone,10-100,0.001,5.0,,,,
-350,0.1,Debiased Sinkhorn,0.10277027194503917,,minmax,,,,,,0.5,1000.0
-408,0.1,Entropic Regularized,0.0033826031636358302,,,,0.05,,,,,
-256,0.1,KBCM,0.006010020757397479,,,,0.001,5.0,100.0,,,
-54,0.1,TLp,0.008787243822004687,0.7,minmax,10-100,0.001,5.0,,,,
-55,0.1,TLp,0.008787243822004687,0.7,zeroone,10-100,0.001,5.0,,,,
-362,0.2,Debiased Sinkhorn,0.30915990286413825,,minmax,,,,,,0.2,3000.0
-417,0.2,Entropic Regularized,0.002279117743064562,,,,0.05,,,,,
-272,0.2,KBCM,0.0038838547439817867,,,,0.001,5.0,100.0,,,
-102,0.2,TLp,0.006036719459491372,0.7,minmax,10-100,0.001,5.0,,,,
-103,0.2,TLp,0.006036719459491372,0.7,zeroone,10-100,0.001,5.0,,,,
-375,0.5,Debiased Sinkhorn,0.16823254635157275,,minmax,,,,,,0.2,3000.0
-376,0.5,Debiased Sinkhorn,0.16823254635157275,,minmax,,,,,,0.2,4000.0
-426,0.5,Entropic Regularized,0.0012712381758863795,,,,0.05,,,,,
-288,0.5,KBCM,0.0012465364612579929,,,,0.001,5.0,100.0,,,
-150,0.5,TLp,0.0020751943578125693,0.7,minmax,10-100,0.001,5.0,,,,
-151,0.5,TLp,0.0020751943578125693,0.7,zeroone,10-100,0.001,5.0,,,,
-385,1.0,Debiased Sinkhorn,0.16361060142591366,,minmax,,,,,,0.01,100000.0
-435,1.0,Entropic Regularized,0.0004663360721724796,,,,0.05,,,,,
-304,1.0,KBCM,0.0007015246523679267,,,,0.001,5.0,100.0,,,
-198,1.0,TLp,0.0008148097041138472,0.7,minmax,10-100,0.001,5.0,,,,
-199,1.0,TLp,0.0008148097041138472,0.7,zeroone,10-100,0.001,5.0,,,,
+,noise_level,algorithm,file_name,max_amplitude,center_distance,above-thld_pixels,above-thld_pixels_std,epsilon,intensity,iter,reg,iters,sample,eta,outer-inner,samples
+20,0,Debiased Sinkhorn,debiased_sink_bary/bary_noiselvl_0.000_eps_0.05_iter_100000_intensity_minmax.npy,0.759837489702366,1.0048591735576161e-14,32,8.94427190999916,0.05,minmax,100000.0,,,,,,
+283,0,Entropic Regularized,entropic_reg_bary/bary_noiselvl_0.000_reg_2.5.npy,0.016372583434466313,7.105427357601002e-15,52,14.594519519326425,,,,2.5,,,,,
+338,0,KBCM,kbcm_bary/bary_noiselvl_0.000_reg_0.5_c_-0.5_iters_100_sample_4_intensity_maxmin.npy,0.00027884408920566536,0.09282648787698597,2500,721.5434844830907,,,,0.5,100.0,4.0,,,
+358,0,TLp-BI,tlp_bary/bary_noiselvl_0.000_reg_0.001_eta_0.001_outer-inner_10-100_samples_10_intensity_minmax.npy,0.018217994147763983,6.537874217542157e-06,2,34.64823227814083,,minmax,,0.001,,,0.001,10-100,10.0
+75,0.1,Debiased Sinkhorn,debiased_sink_bary/bary_noiselvl_0.100_eps_0.01_iter_100_intensity_minmax.npy,0.8468912748596,0.0973431880900751,23,6.527533657682197,0.01,minmax,100.0,,,,,,
+289,0.1,Entropic Regularized,entropic_reg_bary/bary_noiselvl_0.100_reg_0.05.npy,0.003078744622810602,0.0059774245789225924,52,14.594519519326425,,,,0.05,,,,,
+342,0.1,KBCM,kbcm_bary/bary_noiselvl_0.100_reg_0.5_c_-0.5_iters_100_sample_4_intensity_maxmin.npy,0.0002611087469859009,0.05184502000530391,2500,721.5434844830907,,,,0.5,100.0,4.0,,,
+413,0.1,TLp-BI,tlp_bary/bary_noiselvl_0.100_reg_0.001_eta_1_outer-inner_10-100_samples_10_intensity_minmax.npy,0.00843979379284193,0.15276954303770296,39,11.084755065936049,,minmax,,0.001,,,1.0,10-100,10.0
+128,0.2,Debiased Sinkhorn,debiased_sink_bary/bary_noiselvl_0.200_eps_0.01_iter_100_intensity_minmax.npy,0.9240848837261322,0.011572158179109041,12,3.3166247903554,0.01,minmax,100.0,,,,,,
+302,0.2,Entropic Regularized,entropic_reg_bary/bary_noiselvl_0.200_reg_0.05.npy,0.001942700206886809,0.0027301616188452156,36,10.246950765959598,,,,0.05,,,,,
+346,0.2,KBCM,kbcm_bary/bary_noiselvl_0.200_reg_0.5_c_-0.5_iters_100_sample_4_intensity_maxmin.npy,0.00025471701235303657,0.040904204111246574,2500,721.5434844830907,,,,0.5,100.0,4.0,,,
+462,0.2,TLp-BI,tlp_bary/bary_noiselvl_0.200_reg_0.001_eta_1_outer-inner_10-100_samples_10_intensity_minmax.npy,0.0056536140182763496,0.08437655239209609,33,9.276885579794873,,minmax,,0.001,,,1.0,10-100,10.0
+188,0.5,Debiased Sinkhorn,debiased_sink_bary/bary_noiselvl_0.500_eps_0.1_iter_5000_intensity_minmax.npy,0.4593708811499956,0.0649843164319781,43,12.190350739941435,0.1,minmax,5000.0,,,,,,
+315,0.5,Entropic Regularized,entropic_reg_bary/bary_noiselvl_0.500_reg_0.05.npy,0.0009099253739491443,0.11649208328816733,67,22.08869502168913,,,,0.05,,,,,
+352,0.5,KBCM,kbcm_bary/bary_noiselvl_0.500_reg_1_c_-0.5_iters_100_sample_4_intensity_maxmin.npy,0.00028834286830446937,2.2736219250312626,2500,721.5434844830907,,,,1.0,100.0,4.0,,,
+511,0.5,TLp-BI,tlp_bary/bary_noiselvl_0.500_reg_0.001_eta_1_outer-inner_10-100_samples_10_intensity_minmax.npy,0.0016297959545431696,0.19002671842815902,46,13.561454327551338,,minmax,,0.001,,,1.0,10-100,10.0
+226,1,Debiased Sinkhorn,debiased_sink_bary/bary_noiselvl_1.000_eps_0.001_iter_10000_intensity_minmax.npy,0.13157648422794366,0.02502346768269126,2489,719.3896049962198,0.001,minmax,10000.0,,,,,,
+329,1,Entropic Regularized,entropic_reg_bary/bary_noiselvl_1.000_reg_0.1.npy,0.0002064541909157258,0.005988217642643365,2500,721.5434844830907,,,,0.1,,,,,
+356,1,KBCM,kbcm_bary/bary_noiselvl_1.000_reg_1_c_-0.5_iters_100_sample_4_intensity_maxmin.npy,0.0004962538824596976,4.778680720003322,2361,680.4405460594835,,,,1.0,100.0,4.0,,,
+560,1,TLp-BI,tlp_bary/bary_noiselvl_1.000_reg_0.001_eta_1_outer-inner_10-100_samples_10_intensity_minmax.npy,0.0005219939215032381,0.17096894269467652,2488,717.7183546879295,,minmax,,0.001,,,1.0,10-100,10.0
