@@ -18,7 +18,7 @@ echo ""
 
 #if (( $a == 0 || $a == 3 )); then 
 echo "run compare_time.py" 
-python3 compare_time.py
+#python3 compare_time.py
 #fi
 
 echo ""
