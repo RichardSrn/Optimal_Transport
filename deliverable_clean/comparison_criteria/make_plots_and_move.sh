@@ -11,7 +11,7 @@ echo ""
 
 #if (( $a == 0 || $a == 2 )); then 
 echo "run plot_best.py" 
-python3 plot_bests.py
+#python3 plot_bests.py
 #fi
 
 echo ""

@@ -355,7 +355,7 @@ def make_plot(df,
 
     nb_algo = len(sub_df["algorithm"].unique())
 
-    plt.figure(1, figsize=(18, 1 + 2.2 * nb_algo))
+    plt.figure(1, figsize=(20, 1 + 2.2 * nb_algo))
     colors = ["red", "green", "blue", "magenta", "orange", "cyan"]
     i = 0
 

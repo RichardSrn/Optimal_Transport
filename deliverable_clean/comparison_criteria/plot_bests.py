@@ -23,7 +23,7 @@ def plot_bests(path="./results", show=False, save=True) :
         algos = sorted(df["algorithm"].unique())
         noise_lvls = sorted(df["noise_level"].unique())
         
-        plt.figure(1,figsize=(13,8))
+        plt.figure(1,figsize=(12,12))
 
         i = 0
         for algo in algos :
